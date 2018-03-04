@@ -1,0 +1,13 @@
+{
+  "auto_rights": "user",
+  "users": {},
+  "end_port": 0,
+  "file_tmp_folder": null,
+  "proxy_port": 9050,
+  "proxy_host": "127.0.0.1",
+  "start_port": 0,
+  "udp_enabled": true,
+  "tcp_port": 0,
+  "ipv6_enabled": true,
+  "proxy_type": 0
+}
