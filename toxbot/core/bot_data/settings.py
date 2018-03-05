@@ -4,7 +4,7 @@ import os
 
 class Settings(dict):
     """
-    Settings of current profile + global app settings
+    Settings of bot
     """
 
     def __init__(self, settings_path):
@@ -22,7 +22,7 @@ class Settings(dict):
     @staticmethod
     def get_default_settings():
         """
-        Default profile settings
+        Default bot settings
         """
         return {
             'ipv6_enabled': True,
@@ -33,7 +33,9 @@ class Settings(dict):
             'start_port': 0,
             'end_port': 0,
             'tcp_port': 0,
-            'download_nodes': False
+            'download_nodes': False,
+            'auto_rights': 'user',
+            'users': {}
         }
 
     def upgrade(self):

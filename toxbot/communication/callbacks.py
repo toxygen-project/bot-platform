@@ -74,6 +74,7 @@ def tox_file_recv(file_transfer_handler):
         else:  # AVATAR
             print('Incoming avatar')
             file_transfer_handler.decline_transfer(friend_number, file_number)
+
     return wrapped
 
 

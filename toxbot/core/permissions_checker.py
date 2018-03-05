@@ -1,3 +1,5 @@
+
+
 class PermissionChecker:
 
     DEFAULT_ROLES = ['user']

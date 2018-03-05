@@ -68,7 +68,7 @@ class Bot:
     # -----------------------------------------------------------------------------------------------------------------
 
     def invalid_command(self, friend_number):
-        self.send_message_to_friend(friend_number, 'Invalid command.')
+        self.send_message_to_friend(friend_number, TOX_MESSAGE_TYPE['NORMAL'], 'Invalid command.')
 
     @authorize
     def set_name(self, friend_number, name):
@@ -111,7 +111,6 @@ class Bot:
     def set_roles_of_friend_by_public_key(self, friend_number, public_key, roles):
         pass
 
-    @authorize
     def get_friend_roles(self, friend_number):
         pass
 
@@ -122,3 +121,6 @@ class Bot:
     @authorize
     def ban_public_key(self, friend_number, public_key):
         pass
+
+    def print_help(self, friend_number, help):
+        self.send_message_to_friend(friend_number, TOX_MESSAGE_TYPE['NORMAL'], help)
