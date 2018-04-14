@@ -8,12 +8,27 @@ class Interpreter:
     def __init__(self, bot):
         self._bot = bot
 
+    # -----------------------------------------------------------------------------------------------------------------
+    # Interpretation
+    # -----------------------------------------------------------------------------------------------------------------
+
     def interpret(self, message, friend_number):
         message = message.strip()
         command = self.parse_command(message, friend_number)
         self.execute_command(command)
 
-    def execute_command(self, command):
+    def interpret_gc_message(self, message, gc_number, peer_number):
+        message = message.strip()
+        command = self.parse_gc_command(message, gc_number, peer_number)
+        self.execute_command(command)
+
+    def interpret_gc_private_message(self, message, gc_number, peer_number):
+        message = message.strip()
+        command = self.parse_gc_private_command(message, gc_number, peer_number)
+        self.execute_command(command)
+
+    @staticmethod
+    def execute_command(command):
         try:
             command.execute()
         except PermissionsException as ex:
@@ -21,24 +36,34 @@ class Interpreter:
         except Exception as ex:
             log('Exception: ' + str(ex))
 
+    # -----------------------------------------------------------------------------------------------------------------
+    # Parsing
+    # -----------------------------------------------------------------------------------------------------------------
+
     def parse_command(self, message, friend_number):
         if message == 'help':
             return HelpCommand(self._bot, friend_number)
-        elif message.startswith('name'):
-            new_name = message[len('name'):]
+        elif message.startswith('name '):
+            new_name = message[len('name '):]
             return self.create_command(friend_number, 'name', new_name)
-        elif message.startswith('status'):
-            new_status = message[len('status'):]
+        elif message.startswith('status '):
+            new_status = message[len('status '):]
             return self.create_command(friend_number, 'status', int(new_status))
-        elif message.startswith('status_message'):
-            new_status_message = message[len('status_message'):]
-            return self.create_command(friend_number, 'status_message', new_status_message)
+        elif message.startswith('status_message '):
+            new_status_message = message[len('status_message '):]
+            return self.create_command(friend_number, 'status_message ', new_status_message)
         elif message == 'id':
             return self.create_command(friend_number, 'id')
         elif message == 'info':
             return self.create_command(friend_number, 'info')
         else:
             return InvalidCommand(self._bot, friend_number)
+
+    def parse_gc_command(self, message, gc_number, peer_number):
+        pass
+
+    def parse_gc_private_command(self, message, gc_number, peer_number):
+        pass
 
     def create_command(self, friend_number, name, *arguments):
         return Command(self._bot, friend_number, name, *arguments)

@@ -1,4 +1,5 @@
 import os.path
+import time
 
 
 def curr_directory():
@@ -6,6 +7,7 @@ def curr_directory():
 
 
 def log(data):
+    print(data)
     logs_file = os.path.join(curr_directory(), 'logs.txt')
     with open(logs_file, 'a') as fl:
         fl.write(str(data) + '\n')
@@ -25,3 +27,20 @@ def get_settings_path():
 
 def get_default_path():
     return get_abs_file_path('bot_data/bot.tox')
+
+
+def time_from_seconds(seconds):
+    return time.strftime('%D days %H hours %M minutes %S seconds', time.gmtime(seconds))
+
+
+def get_time():
+    return int(time.time())
+
+
+class ToxSave:
+
+    def __init__(self, tox):
+        self._tox = tox
+
+    def set_tox(self, tox):
+        self._tox = tox

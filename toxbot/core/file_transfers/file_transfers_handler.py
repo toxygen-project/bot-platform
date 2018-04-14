@@ -1,6 +1,7 @@
 from core.file_transfers.file_transfers import *
 from core.util import get_avatar_path
 from wrapper.toxcore_enums_and_consts import *
+from core.file_transfers.file_transfer_thread import start, stop
 
 
 class FileTransfersHandler:
@@ -13,6 +14,10 @@ class FileTransfersHandler:
         self._tox = tox
         self._permission_checker = permission_checker
         self._file_transfers = {}  # dict of file transfers. key - tuple (friend_number, file_number)
+        start()
+
+    def __del__(self):
+        stop()
 
     def send_avatar(self, friend_number):
         avatar_path = get_avatar_path()

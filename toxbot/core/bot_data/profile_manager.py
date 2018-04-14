@@ -1,7 +1,7 @@
 import os.path
 
 
-class ProfileManager:
+class ProfileManager():
 
     def __init__(self, profile_path):
         self._path = profile_path

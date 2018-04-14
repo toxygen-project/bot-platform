@@ -35,7 +35,11 @@ class Settings(dict):
             'tcp_port': 0,
             'download_nodes': False,
             'auto_rights': 'user',
-            'users': {}
+            'users': {},
+            "ban": {
+                "nicks": [],
+                "public_keys": []
+            }
         }
 
     def upgrade(self):
@@ -48,6 +52,5 @@ class Settings(dict):
 
     def save(self):
         text = json.dumps(self)
-        text = bytes(text, 'utf-8')
-        with open(self._path, 'wb') as fl:
+        with open(self._path, 'wt') as fl:
             fl.write(text)

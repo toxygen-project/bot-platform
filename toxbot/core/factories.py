@@ -7,8 +7,8 @@ def interpreter_default_factory(bot):
     return Interpreter(bot)
 
 
-def bot_default_factory(tox, settings, profile_manager, permission_checker):
-    return Bot(tox, settings, profile_manager, permission_checker)
+def bot_default_factory(tox, settings, profile_manager, permission_checker, stop_action):
+    return Bot(tox, settings, profile_manager, permission_checker, stop_action)
 
 
 def file_transfer_handler_default_factory(tox, permission_checker):

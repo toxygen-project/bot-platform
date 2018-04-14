@@ -66,7 +66,7 @@ class ToxBotApplication:
         permission_checker = PermissionChecker(settings, self._tox)
 
         file_transfer_handler = parameters.file_transfer_handler_factory(self._tox, permission_checker)
-        self._bot = parameters.bot_factory(self._tox, settings, profile_manager, permission_checker)
+        self._bot = parameters.bot_factory(self._tox, settings, profile_manager, permission_checker, self.stop)
         interpreter = parameters.interpreter_factory(self._bot)
 
         init_callbacks(self._bot, self._tox, interpreter, file_transfer_handler)
@@ -84,7 +84,7 @@ class ToxBotApplication:
                 self._tox.iterate()
                 time.sleep(self._tox.iteration_interval() / 1000.0)
         except KeyboardInterrupt:
-            pass
+            print('Closing...')
 
         settings.save()
         profile_manager.save_profile()
@@ -104,4 +104,5 @@ if __name__ == '__main__':
         path = sys.argv[1]
     else:
         path = util.get_default_path()
+
     main(path)
