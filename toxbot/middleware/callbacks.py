@@ -118,21 +118,32 @@ def file_recv_control(file_transfer_handler):
 # -----------------------------------------------------------------------------------------------------------------
 
 
-def group_message(interpreter):
-    """
-    New message in group chat
-    """
-    def wrapped(tox_link, group_number, peer_id, message_type, message, length, user_data):
-        interpreter.interpret_gc_message(message[:length], group_number, peer_id)
-        
-    return wrapped
-
-
 def group_invite(bot):
     def wrapped(tox, friend_number, invite_data, length, user_data):
         bot.process_gc_invite_request(friend_number, bytes(invite_data[:length]))
 
     return wrapped
+
+
+def group_message(interpreter):
+    """
+    New message in group chat
+    """
+    def wrapped(tox_link, group_number, peer_number, message_type, message, length, user_data):
+        interpreter.interpret_gc_message(message[:length], group_number, peer_number)
+
+    return wrapped
+
+
+def group_private_message(interpreter):
+    """
+    New message in group chat
+    """
+    def wrapped(tox_link, group_number, peer_number, message_type, message, length, user_data):
+        interpreter.interpret_gc_private_message(message[:length], group_number, peer_number)
+
+    return wrapped
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - initialization
@@ -157,4 +168,6 @@ def init_callbacks(bot, tox, interpreter, file_transfer_handler):
     tox.callback_file_chunk_request(file_chunk_request(file_transfer_handler), 0)
     tox.callback_file_recv_control(file_recv_control(file_transfer_handler), 0)
 
-    # TODO: add gc callbacks
+    tox.callback_group_invite(group_invite(bot), 0)
+    tox.callback_group_message(group_message(interpreter), 0)
+    tox.callback_group_private_message(group_private_message(interpreter), 0)

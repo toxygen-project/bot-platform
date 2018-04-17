@@ -1,11 +1,12 @@
 import os.path
+import core.util as util
 
 
-class ProfileManager():
+class ProfileManager(util.ToxSave):
 
     def __init__(self, profile_path):
+        super().__init__(None)
         self._path = profile_path
-        self._tox = None
 
     def load_profile(self):
         if not os.path.exists(self._path):
@@ -23,6 +24,3 @@ class ProfileManager():
 
     def get_settings_path(self):
         return self._path.replace('.tox', '.json')
-
-    def set_tox(self, tox):
-        self._tox = tox

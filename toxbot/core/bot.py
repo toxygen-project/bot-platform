@@ -14,6 +14,10 @@ class Bot:
 
         self._start_time = get_time()
 
+    # -----------------------------------------------------------------------------------------------------------------
+    # Common methods
+    # -----------------------------------------------------------------------------------------------------------------
+
     def check_permissions(self, command, roles, friend_number):
         if not self._permission_checker.check_permissions(roles, friend_number):
             raise PermissionsException(friend_number, command)
@@ -41,7 +45,7 @@ class Bot:
         for tox_message in messages:
             self._tox.friend_send_message(friend_number, message_type, tox_message)
 
-    def send_message_to_group(self, group_number, message_type, message):
+    def send_message_to_group(self, group_number, message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
         """
         :param group_number: group number
         :param message_type: type of message
@@ -50,6 +54,18 @@ class Bot:
         messages = self.split_message(message)
         for tox_message in messages:
             self._tox.group_send_message(group_number, message_type, tox_message)
+
+    def send_private_message_to_gc_peer(self, group_number, peer_number,
+                                        message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
+        """
+        :param group_number: group number
+        :param peer_number: destination peer number
+        :param message_type: type of message
+        :param message: message text
+        """
+        messages = self.split_message(message)
+        for tox_message in messages:
+            self._tox.group_send_private_message(group_number, peer_number, message_type, tox_message)
 
     @staticmethod
     def split_message(message):
@@ -72,6 +88,25 @@ class Bot:
         return messages
 
     # -----------------------------------------------------------------------------------------------------------------
+    # Overridable methods
+    # -----------------------------------------------------------------------------------------------------------------
+
+    def create_info(self):
+        current_time = get_time()
+        online_time = time_from_seconds(current_time - self._start_time)
+        friends_list = self._tox.self_get_friend_list()
+        friends_count = len(friends_list)
+        online_friends_count = sum([
+            self._tox.friend_get_connection_status(friend) != TOX_CONNECTION['NONE'] for friend in friends_list
+        ])
+        messages = [
+            'Uptime: ' + online_time,
+            'Friends: {} ({} online)'.format(friends_count, online_friends_count)
+        ]
+
+        return messages
+
+    # -----------------------------------------------------------------------------------------------------------------
     # Bot commands
     # -----------------------------------------------------------------------------------------------------------------
 
@@ -79,6 +114,9 @@ class Bot:
         self.send_message_to_friend(friend_number, 'Invalid command.')
 
     def invalid_gc_command(self, gc_number, peer_number):
+        pass
+
+    def invalid_gc_private_command(self, gc_number, peer_number):
         pass
 
     @authorize
@@ -100,17 +138,7 @@ class Bot:
 
     @authorize
     def get_info(self, friend_number):
-        current_time = get_time()
-        online_time = time_from_seconds(current_time - self._start_time)
-        friends_list = self._tox.self_get_friend_list()
-        friends_count = len(friends_list)
-        online_friends_count = sum([
-            self._tox.friend_get_connection_status(friend) != TOX_CONNECTION['NONE'] for friend in friends_list
-        ])
-        messages = [
-            'Uptime: ' + online_time,
-            'Friends: {} ({} online)'.format(friends_count, online_friends_count)
-        ]
+        messages = self.create_info()
         for message in messages:
             self.send_message_to_friend(friend_number, message)
 
@@ -133,7 +161,12 @@ class Bot:
 
     @authorize
     def send_group_message(self, friend_number, message, destination_group=None):
-        pass
+        if destination_group is not None:
+            groups_list = [destination_group]
+        else:
+            groups_list = range(self._tox.group_get_number_groups())
+        for group in groups_list:
+            self.send_message_to_group(group, message)
 
     @authorize
     def stop(self, friend_number):

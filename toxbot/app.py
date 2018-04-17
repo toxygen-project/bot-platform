@@ -1,8 +1,8 @@
 from core.bootstrap.bootstrap import generate_nodes, download_nodes_list
-from communication.callbacks import init_callbacks
+from middleware.callbacks import init_callbacks
 import sys
 from core.bot_data.profile_manager import ProfileManager
-from communication.tox_factory import *
+from middleware.tox_factory import *
 from core.bot_data.settings import Settings
 from core.factories import *
 import core.util as util
@@ -57,6 +57,7 @@ class ToxBotApplication:
         if parameters is None:
             parameters = ToxBotAppParameters()
 
+        print('Starting ToxBot v' + __version__)
         profile_manager = ProfileManager(self._path)
         profile_data = profile_manager.load_profile()
         settings_path = profile_manager.get_settings_path()
@@ -82,7 +83,7 @@ class ToxBotApplication:
         try:
             while not self._stop:
                 self._tox.iterate()
-                time.sleep(self._tox.iteration_interval() / 1000.0)
+                time.sleep(self._tox.iteration_interval() / 1000)
         except KeyboardInterrupt:
             print('Closing...')
 
