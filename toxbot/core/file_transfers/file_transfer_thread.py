@@ -6,10 +6,10 @@ from core.util import log
 class FileTransfersThread(threading.Thread):
 
     def __init__(self):
+        super().__init__()
         self._queue = queue.Queue()
         self._timeout = 0.1
         self._continue = True
-        super().__init__()
 
     def execute(self, func, *args, **kwargs):
         self._queue.put((func, args, kwargs))

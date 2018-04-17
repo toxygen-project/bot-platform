@@ -60,10 +60,10 @@ class Interpreter:
             return InvalidCommand(self._bot, friend_number)
 
     def parse_gc_command(self, message, gc_number, peer_number):
-        pass
+        return InvalidGcCommand(self._bot, gc_number, peer_number)
 
     def parse_gc_private_command(self, message, gc_number, peer_number):
-        pass
+        return InvalidGcPrivateCommand(self._bot, gc_number, peer_number)
 
     def create_command(self, friend_number, name, *arguments):
         return Command(self._bot, friend_number, name, *arguments)
