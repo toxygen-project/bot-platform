@@ -5,12 +5,13 @@ from core.util import log, get_time, time_from_seconds
 
 class Bot:
 
-    def __init__(self, tox, settings, profile_manager, permission_checker, stop_action):
+    def __init__(self, tox, settings, profile_manager, permission_checker, stop_action, reconnect_action):
         self._tox = tox
         self._settings = settings
         self._profile_manager = profile_manager
         self._permission_checker = permission_checker
         self._stop_action = stop_action
+        self._reconnect_action = reconnect_action
 
         self._start_time = get_time()
 

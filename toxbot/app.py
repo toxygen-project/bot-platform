@@ -67,7 +67,8 @@ class ToxBotApplication:
         permission_checker = PermissionChecker(settings, self._tox)
 
         file_transfer_handler = parameters.file_transfer_handler_factory(self._tox, permission_checker)
-        self._bot = parameters.bot_factory(self._tox, settings, profile_manager, permission_checker, self.stop)
+        self._bot = parameters.bot_factory(self._tox, settings, profile_manager, permission_checker,
+                                           self.stop, self.reconnect)
         interpreter = parameters.interpreter_factory(self._bot)
 
         init_callbacks(self._bot, self._tox, interpreter, file_transfer_handler)
@@ -93,6 +94,9 @@ class ToxBotApplication:
 
     def stop(self):
         self._stop = True
+
+    def reconnect(self):
+        pass  # TODO: reconnection logic here
 
 
 def main(profile_path):

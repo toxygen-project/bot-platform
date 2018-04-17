@@ -84,7 +84,7 @@ class SendTransfer(FileTransfer):
             size = getsize(path)
         else:
             size = 0
-        super(SendTransfer, self).__init__(path, tox, friend_number, size)
+        super().__init__(path, tox, friend_number, size)
         self.state = TOX_FILE_TRANSFER_STATE['OUTGOING_NOT_STARTED']
         self._file_number = tox.file_send(friend_number, kind, size, file_id,
                                           bytes(basename(path), 'utf-8') if path else b'')
@@ -120,7 +120,7 @@ class SendAvatar(SendTransfer):
         else:
             with open(path, 'rb') as fl:
                 hash = Tox.hash(fl.read())
-        super(SendAvatar, self).__init__(path, tox, friend_number, TOX_FILE_KIND['AVATAR'], hash)
+        super().__init__(path, tox, friend_number, TOX_FILE_KIND['AVATAR'], hash)
 
 # -----------------------------------------------------------------------------------------------------------------
 # Receive file
@@ -130,7 +130,7 @@ class SendAvatar(SendTransfer):
 class ReceiveTransfer(FileTransfer):
 
     def __init__(self, path, tox, friend_number, size, file_number, position=0):
-        super(ReceiveTransfer, self).__init__(path, tox, friend_number, size, file_number)
+        super().__init__(path, tox, friend_number, size, file_number)
         self._file = open(self._path, 'wb')
         self._file_size = position
         self._file.truncate(position)
@@ -139,7 +139,7 @@ class ReceiveTransfer(FileTransfer):
         self._done = position
 
     def cancel(self):
-        super(ReceiveTransfer, self).cancel()
+        super().cancel()
         remove(self._path)
 
     def total_size(self):

@@ -1,12 +1,13 @@
+import core.util as util
 
 
-class PermissionChecker:
+class PermissionChecker(util.ToxSave):
 
     DEFAULT_ROLES = ['user']
 
     def __init__(self, settings, tox):
+        super().__init__(tox)
         self._settings = settings
-        self._tox = tox
 
     def check_permissions(self, command_roles, friend_number):
         friend_roles = self.get_user_roles(friend_number)

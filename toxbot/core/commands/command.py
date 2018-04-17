@@ -23,6 +23,8 @@ class CommandData:
     description = property(get_description)
 
 
+# TODO: more commands
+
 _commands = {
     'name': CommandData('set_name', ['admin'], 'Sets my name'),
     'status': CommandData('set_status', ['admin'], 'Sets my status'),
