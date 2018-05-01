@@ -42,7 +42,7 @@ class Bot:
         :param message_type: type of message
         :param message: message text
         """
-        messages = self.split_message(message)
+        messages = self._split_message(message)
         for tox_message in messages:
             self._tox.friend_send_message(friend_number, message_type, tox_message)
 
@@ -52,7 +52,7 @@ class Bot:
         :param message_type: type of message
         :param message: message text
         """
-        messages = self.split_message(message)
+        messages = self._split_message(message)
         for tox_message in messages:
             self._tox.group_send_message(group_number, message_type, tox_message)
 
@@ -64,29 +64,9 @@ class Bot:
         :param message_type: type of message
         :param message: message text
         """
-        messages = self.split_message(message)
+        messages = self._split_message(message)
         for tox_message in messages:
             self._tox.group_send_private_message(group_number, peer_number, message_type, tox_message)
-
-    @staticmethod
-    def split_message(message):
-        messages = []
-        while len(message) > TOX_MAX_MESSAGE_LENGTH:
-            size = TOX_MAX_MESSAGE_LENGTH * 4 / 5
-            last_part = message[size:TOX_MAX_MESSAGE_LENGTH]
-            if ' ' in last_part:
-                index = last_part.index(' ')
-            elif ',' in last_part:
-                index = last_part.index(',')
-            elif '.' in last_part:
-                index = last_part.index('.')
-            else:
-                index = TOX_MAX_MESSAGE_LENGTH - size - 1
-            index += size + 1
-            messages.append(message[:index])
-            message = message[index:]
-
-        return messages
 
     # -----------------------------------------------------------------------------------------------------------------
     # Overridable methods
@@ -201,3 +181,29 @@ class Bot:
 
     def print_help(self, friend_number, help_message):
         self.send_message_to_friend(friend_number, help_message)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Private methods
+    # -----------------------------------------------------------------------------------------------------------------
+
+    @staticmethod
+    def _split_message(message):
+        messages = []
+        while len(message) > TOX_MAX_MESSAGE_LENGTH:
+            size = TOX_MAX_MESSAGE_LENGTH * 4 / 5
+            last_part = message[size:TOX_MAX_MESSAGE_LENGTH]
+            if ' ' in last_part:
+                index = last_part.index(' ')
+            elif ',' in last_part:
+                index = last_part.index(',')
+            elif '.' in last_part:
+                index = last_part.index('.')
+            else:
+                index = TOX_MAX_MESSAGE_LENGTH - size - 1
+            index += size + 1
+            messages.append(message[:index])
+            message = message[index:]
+        if message:
+            messages.append(message)
+
+        return messages

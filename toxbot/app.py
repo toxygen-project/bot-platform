@@ -92,10 +92,10 @@ class ToxBotApplication:
         profile_manager.save_profile()
         del self._tox
 
-    def stop(self):
+    def _stop(self):
         self._stop = True
 
-    def reconnect(self):
+    def _reconnect(self):
         pass  # TODO: reconnection logic here
 
 
