@@ -20,7 +20,7 @@ class ProfileManager(util.ToxSave):
         data = self._tox.get_savedata()
         with open(self._path, 'wb') as dest:
             dest.write(data)
-        print('Profile saved successfully')
+        print('Profile was saved successfully')
 
     def get_settings_path(self):
         return self._path.replace('.tox', '.json')
