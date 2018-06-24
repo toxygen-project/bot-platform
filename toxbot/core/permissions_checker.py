@@ -1,7 +1,7 @@
-import core.util as util
+from core.common.tox_save import *
 
 
-class PermissionChecker(util.ToxSave):
+class PermissionChecker(ToxSave):
 
     DEFAULT_ROLES = ['user']
 

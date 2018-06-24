@@ -5,6 +5,7 @@ from core.bot_data.profile_manager import ProfileManager
 from middleware.tox_factory import *
 from core.bot_data.settings import Settings
 import time
+import core.util as util
 from app_parameters import *
 
 __version__ = '0.2'
@@ -17,7 +18,7 @@ class ToxBotApplication:
         self._path = profile_path
 
         self._tox = self._file_transfer_handler = self._bot = self._profile_manager = None
-        self._interpreter = self._settings = self._parameters = None
+        self._interpreter = self._settings = self._parameters = self._permission_checker = None
         self._stop = False
 
     def main(self, parameters=None):
@@ -53,7 +54,8 @@ class ToxBotApplication:
         self._profile_manager.save_profile()
         profile_data = self._profile_manager.load_profile()
         self._tox = tox_factory(profile_data, self._settings)
-        tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager]
+        tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager,
+                      self._permission_checker]
         for tox_saver in tox_savers:
             tox_saver.set_tox(self._tox)
         self._init_callbacks()
@@ -65,11 +67,12 @@ class ToxBotApplication:
         self._settings = Settings(settings_path)
         self._tox = tox_factory(profile_data, self._settings)
         self._profile_manager.set_tox(self._tox)
-        permission_checker = PermissionChecker(self._settings, self._tox)
+        self._permission_checker = PermissionChecker(self._settings, self._tox)
 
-        self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox, permission_checker)
-        self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager, permission_checker,
-                                                 self._stop, self._reconnect)
+        self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox,
+                                                                                     self._permission_checker)
+        self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,
+                                                 self._permission_checker, self._stop, self._reconnect)
         self._interpreter = self._parameters.interpreter_factory(self._bot)
 
     def _init_callbacks(self):

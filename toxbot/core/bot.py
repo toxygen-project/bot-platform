@@ -34,6 +34,11 @@ class Bot(ToxSave):
             self._tox.group_invite_accept(invite_data, friend_number)
             self._profile_manager.save_profile()
 
+    def process_conference_invite_request(self, friend_number, invite_data):
+        if self._permission_checker.accept_gc_invite_from(friend_number):
+            self._tox.conference_join(invite_data, friend_number)
+            self._profile_manager.save_profile()
+
     def update_connection_status(self, connection_status):
         pass
 

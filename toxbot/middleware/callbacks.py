@@ -149,7 +149,19 @@ def group_private_message(interpreter):
 # Callbacks - old group chats
 # -----------------------------------------------------------------------------------------------------------------
 
-# TODO: add callbacks
+def conference_invite(bot):
+    def wrapped(tox, friend_number, invite_data, length, user_data):
+        bot.process_conference_invite_request(friend_number, bytes(invite_data[:length]))
+
+    return wrapped
+
+
+def conference_message(interpreter):
+    def wrapped(tox, group_number, peer_number, message, length, user_data):
+        interpreter.interpret_gc_message(message[:length], group_number, peer_number)
+
+    return wrapped
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - initialization
@@ -175,7 +187,10 @@ def init_callbacks(bot, tox, interpreter, file_transfer_handler, should_use_old_
     tox.callback_file_chunk_request(file_chunk_request(file_transfer_handler))
     tox.callback_file_recv_control(file_recv_control(file_transfer_handler))
 
-    if not should_use_old_gc:
+    if should_use_old_gc:
+        tox.callback_conference_invite(conference_invite(bot))
+        tox.callback_conference_message(conference_message(interpreter))
+    else:
         tox.callback_group_invite(group_invite(bot), 0)
         tox.callback_group_message(group_message(interpreter), 0)
         tox.callback_group_private_message(group_private_message(interpreter), 0)
