@@ -1,12 +1,13 @@
 from core.permissions_checker import *
 from wrapper.toxcore_enums_and_consts import *
 from core.util import log, get_time, time_from_seconds
+from core.common.tox_save import ToxSave
 
 
-class Bot:
+class Bot(ToxSave):
 
     def __init__(self, tox, settings, profile_manager, permission_checker, stop_action, reconnect_action):
-        self._tox = tox
+        super().__init__(tox)
         self._settings = settings
         self._profile_manager = profile_manager
         self._permission_checker = permission_checker

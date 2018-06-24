@@ -2,16 +2,17 @@ from core.file_transfers.file_transfers import *
 from core.util import get_avatar_path
 from wrapper.toxcore_enums_and_consts import *
 from core.file_transfers.file_transfer_thread import start, stop
+from core.common.tox_save import ToxSave
 
 
-class FileTransfersHandler:
+class FileTransfersHandler(ToxSave):
 
     SETTINGS_FILE_NAME = 'settings.json'
 
     AVATAR_FILE_NAME = 'avatar.png'
 
     def __init__(self, tox, permission_checker):
-        self._tox = tox
+        super().__init__(tox)
         self._permission_checker = permission_checker
         self._file_transfers = {}  # dict of file transfers. key - tuple (friend_number, file_number)
         start()

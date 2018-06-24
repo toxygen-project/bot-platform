@@ -35,12 +35,3 @@ def time_from_seconds(seconds):
 
 def get_time():
     return int(time.time())
-
-
-class ToxSave:
-
-    def __init__(self, tox):
-        self._tox = tox
-
-    def set_tox(self, tox):
-        self._tox = tox

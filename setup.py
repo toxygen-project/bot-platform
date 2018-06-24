@@ -15,8 +15,8 @@ setup(name='ToxBotPlatform',
       maintainer='Ingvar',
       license='GPL3',
       packages=[
-          'toxbot', 'toxbot.core', 'toxbot.wrapper', 'toxbot,middleware', 'toxbot.core.bootstrap',
-          'toxbot.core.bot_data', 'toxbot.core.commands', 'toxbot.core.file_transfers'
+          'toxbot', 'toxbot.core', 'toxbot.wrapper', 'toxbot.middleware', 'toxbot.core.bootstrap',
+          'toxbot.core.bot_data', 'toxbot.core.commands', 'toxbot.core.file_transfers', 'toxbot.core.common'
       ],
       include_package_data=True,
       classifiers=[

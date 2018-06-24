@@ -4,87 +4,33 @@ import sys
 from core.bot_data.profile_manager import ProfileManager
 from middleware.tox_factory import *
 from core.bot_data.settings import Settings
-from core.factories import *
-import core.util as util
 import time
+from app_parameters import *
 
 __version__ = '0.2'
 __maintainer__ = 'Ingvar'
 
 
-class ToxBotAppParameters:
-
-    def __init__(self,
-                 bot_factory=bot_default_factory,
-                 interpreter_factory=interpreter_default_factory,
-                 file_transfer_handler_factory=file_transfer_handler_default_factory,
-                 should_use_old_gc=True,
-                 callbacks_initializer=None):
-        self._bot_factory = bot_factory
-        self._interpreter_factory = interpreter_factory
-        self._file_transfer_handler_factory = file_transfer_handler_factory
-        self._should_use_old_gc = should_use_old_gc
-        self._callbacks_initializer = callbacks_initializer
-
-    def get_bot_factory(self):
-        return self._bot_factory
-
-    bot_factory = property(get_bot_factory)
-
-    def get_interpreter_factory(self):
-        return self._interpreter_factory
-
-    interpreter_factory = property(get_interpreter_factory)
-
-    def get_file_transfer_handler_factory(self):
-        return self._file_transfer_handler_factory
-
-    file_transfer_handler_factory = property(get_file_transfer_handler_factory)
-
-    def get_should_use_old_gc(self):
-        return self._should_use_old_gc
-
-    should_use_old_gc = property(get_should_use_old_gc)
-
-    def get_callbacks_initializer(self):
-        return self._callbacks_initializer
-
-    callbacks_initializer = property(get_callbacks_initializer)
-
-
 class ToxBotApplication:
 
     def __init__(self, profile_path):
-        self._tox = None
-        self._stop = False
-        self._bot = None
         self._path = profile_path
 
+        self._tox = self._file_transfer_handler = self._bot = self._profile_manager = None
+        self._interpreter = self._settings = self._parameters = None
+        self._stop = False
+
     def main(self, parameters=None):
-        if parameters is None:
-            parameters = ToxBotAppParameters()
+        self._parameters = parameters or ToxBotAppParameters()
 
         print('Starting ToxBot v' + __version__)
-        profile_manager = ProfileManager(self._path)
-        profile_data = profile_manager.load_profile()
-        settings_path = profile_manager.get_settings_path()
-        settings = Settings(settings_path)
-        self._tox = tox_factory(profile_data, settings)
-        profile_manager.set_tox(self._tox)
-        permission_checker = PermissionChecker(settings, self._tox)
 
-        file_transfer_handler = parameters.file_transfer_handler_factory(self._tox, permission_checker)
-        self._bot = parameters.bot_factory(self._tox, settings, profile_manager, permission_checker,
-                                           self._stop, self._reconnect)
-        interpreter = parameters.interpreter_factory(self._bot)
+        self._create_dependencies()
 
-        init_callbacks(self._bot, self._tox, interpreter, file_transfer_handler, parameters.should_use_old_gc)
-        if parameters.callbacks_initializer is not None:
-            parameters.callbacks_initializer(self._bot, self._tox, interpreter, file_transfer_handler,
-                                             parameters.should_use_old_gc)
+        self._init_callbacks()
 
         # bootstrap
-        if settings['download_nodes']:
+        if self._settings['download_nodes']:
             download_nodes_list()
         for data in generate_nodes():
             self._tox.bootstrap(*data)
@@ -96,15 +42,42 @@ class ToxBotApplication:
         except KeyboardInterrupt:
             print('Closing...')
 
-        settings.save()
-        profile_manager.save_profile()
+        self._settings.save()
+        self._profile_manager.save_profile()
         del self._tox
 
     def _stop(self):
         self._stop = True
 
     def _reconnect(self):
-        pass  # TODO: reconnection logic here
+        self._profile_manager.save_profile()
+        profile_data = self._profile_manager.load_profile()
+        self._tox = tox_factory(profile_data, self._settings)
+        tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager]
+        for tox_saver in tox_savers:
+            tox_saver.set_tox(self._tox)
+        self._init_callbacks()
+
+    def _create_dependencies(self):
+        self._profile_manager = ProfileManager(self._path)
+        profile_data = self._profile_manager.load_profile()
+        settings_path = self._profile_manager.get_settings_path()
+        self._settings = Settings(settings_path)
+        self._tox = tox_factory(profile_data, self._settings)
+        self._profile_manager.set_tox(self._tox)
+        permission_checker = PermissionChecker(self._settings, self._tox)
+
+        self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox, permission_checker)
+        self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager, permission_checker,
+                                                 self._stop, self._reconnect)
+        self._interpreter = self._parameters.interpreter_factory(self._bot)
+
+    def _init_callbacks(self):
+        init_callbacks(self._bot, self._tox, self._interpreter, self._file_transfer_handler,
+                       self._parameters.should_use_old_gc)
+        if self._parameters.callbacks_initializer is not None:
+            self._parameters.callbacks_initializer(self._bot, self._tox, self._interpreter,
+                                                   self._file_transfer_handler, self._parameters.should_use_old_gc)
 
 
 def main(profile_path):
