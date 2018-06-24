@@ -114,7 +114,7 @@ def file_recv_control(file_transfer_handler):
     return wrapped
 
 # -----------------------------------------------------------------------------------------------------------------
-# Callbacks - group chats
+# Callbacks - new group chats
 # -----------------------------------------------------------------------------------------------------------------
 
 
@@ -146,28 +146,36 @@ def group_private_message(interpreter):
 
 
 # -----------------------------------------------------------------------------------------------------------------
+# Callbacks - old group chats
+# -----------------------------------------------------------------------------------------------------------------
+
+# TODO: add callbacks
+
+# -----------------------------------------------------------------------------------------------------------------
 # Callbacks - initialization
 # -----------------------------------------------------------------------------------------------------------------
 
 
-def init_callbacks(bot, tox, interpreter, file_transfer_handler):
+def init_callbacks(bot, tox, interpreter, file_transfer_handler, should_use_old_gc):
     """
     Initialization of all callbacks.
     :param bot: Bot instance
     :param tox: Tox instance
     :param interpreter: Interpreter instance
     :param file_transfer_handler: FileTransfersHandler instance
+    :param should_use_old_gc: bool value. True if we should run app with old gc support
     """
-    tox.callback_self_connection_status(self_connection_status(bot), 0)
+    tox.callback_self_connection_status(self_connection_status(bot))
 
-    tox.callback_friend_message(friend_message(interpreter), 0)
-    tox.callback_friend_request(friend_request(bot), 0)
+    tox.callback_friend_message(friend_message(interpreter))
+    tox.callback_friend_request(friend_request(bot))
 
-    tox.callback_file_recv(tox_file_recv(file_transfer_handler), 0)
-    tox.callback_file_recv_chunk(file_recv_chunk(file_transfer_handler), 0)
-    tox.callback_file_chunk_request(file_chunk_request(file_transfer_handler), 0)
-    tox.callback_file_recv_control(file_recv_control(file_transfer_handler), 0)
+    tox.callback_file_recv(tox_file_recv(file_transfer_handler))
+    tox.callback_file_recv_chunk(file_recv_chunk(file_transfer_handler))
+    tox.callback_file_chunk_request(file_chunk_request(file_transfer_handler))
+    tox.callback_file_recv_control(file_recv_control(file_transfer_handler))
 
-    tox.callback_group_invite(group_invite(bot), 0)
-    tox.callback_group_message(group_message(interpreter), 0)
-    tox.callback_group_private_message(group_private_message(interpreter), 0)
+    if not should_use_old_gc:
+        tox.callback_group_invite(group_invite(bot), 0)
+        tox.callback_group_message(group_message(interpreter), 0)
+        tox.callback_group_private_message(group_private_message(interpreter), 0)
