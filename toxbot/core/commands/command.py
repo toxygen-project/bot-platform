@@ -29,13 +29,13 @@ _commands = {
     'name': CommandData('set_name', ['admin'], 'Sets my name'),
     'status': CommandData('set_status', ['admin'], 'Sets my status'),
     'status_message': CommandData('set_status_message', ['admin'], 'Sets my status message'),
-    'id': CommandData('get_id', ['user'], 'Gets my TOX ID'),
-    'info': CommandData('get_info', ['user'], 'Prints my current status'),
-    'help': CommandData('print_help', ['user'], 'Prints commands list'),
+    'id': CommandData('get_id', ['user', 'admin'], 'Gets my TOX ID'),
+    'info': CommandData('get_info', ['user', 'admin'], 'Prints my current status'),
+    'help': CommandData('print_help', ['user', 'admin'], 'Prints commands list'),
     'message': CommandData('send_message', ['admin'], 'Sends message'),
     'stop': CommandData('stops', ['admin'], 'Stops bot'),
     'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
-    'ban pk': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
+    'ban pk': CommandData('ban_public_key', ['admin'], 'Ban user by public key'),
     'roles': CommandData('roles', ['user', 'admin'], 'Prints your roles'),
 }
 
@@ -53,16 +53,35 @@ def extend_command_list(new_commands):
 
 class BaseCommand:
 
-    def __init__(self, bot, command, *arguments):
-        self._bot = bot
-        self._command = command
-        self._arguments = arguments
-        self._is_valid = self._command in _commands
+    def __init__(self, is_valid):
+        self._is_valid = is_valid
 
     def get_is_valid(self):
         return self._is_valid
 
     is_valid = property(get_is_valid)
+
+    def execute(self):
+        pass
+
+
+class ExecutableCommand(BaseCommand):
+
+    def __init__(self, action):
+        super().__init__(True)
+        self._action = action
+
+    def execute(self):
+        self._action()
+
+
+class BaseDefaultCommand(BaseCommand):
+
+    def __init__(self, bot, command, *arguments):
+        super().__init__(self._command in _commands)
+        self._bot = bot
+        self._command = command
+        self._arguments = arguments
 
     def execute(self):
         if self._is_valid:
@@ -79,7 +98,7 @@ class BaseCommand:
         pass
 
 
-class Command(BaseCommand):
+class Command(BaseDefaultCommand):
 
     def __init__(self, bot, friend_number, command, *arguments):
         super().__init__(bot, command, *arguments)
@@ -93,7 +112,7 @@ class Command(BaseCommand):
         method(roles, self._friend_number, *self._arguments)
 
 
-class GcCommand(BaseCommand):
+class GcCommand(BaseDefaultCommand):
 
     def __init__(self, bot, gc_number, peer_number, command, *arguments):
         super().__init__(bot, command, *arguments)

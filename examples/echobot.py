@@ -1,39 +1,31 @@
 from toxbot.app_parameters import ToxBotAppParameters
 from toxbot.app import ToxBotApplication
-from toxbot.core.bot import Bot
 from toxbot.core.interpreter import Interpreter
-from toxbot.core.commands.command import extend_command_list, CommandData, Command
-from toxbot.core.permissions_checker import authorize
-
-
-class Echobot(Bot):
-
-    @authorize
-    def echo(self, friend_number, message):
-        super().send_message_to_friend(friend_number, message)
-
-
-def bot_factory(tox, settings, profile_manager, permission_checker, stop_action, reconnect_action):
-    return Echobot(tox, settings, profile_manager, permission_checker, stop_action, reconnect_action)
+from toxbot.core.commands.command import ExecutableCommand
 
 
 class EchobotInterpreter(Interpreter):
+    """
+    Interpreter of user commands.
+    """
 
     def _parse_command(self, message, friend_number):
+        # Remove this section if you don't need basic commands support
+        ##############################################################
         command = super()._parse_command(message, friend_number)
-        if not command.is_valid:
-            command = Command(self._bot, friend_number, 'echo', message)
+        if command.is_valid:
+            return command
+        ##############################################################
 
-        return command
+        return ExecutableCommand(lambda: self._bot.send_message_to_friend(friend_number, message))
 
 
 def main():
-    extend_command_list({
-        'echo': CommandData('echo', ['user', 'admin'])
-    })
+    # creates app instance
     app = ToxBotApplication('echobot.tox')
-    params = ToxBotAppParameters(interpreter_factory=lambda bot: EchobotInterpreter(bot),
-                                 bot_factory=bot_factory)
+    # overrides default app parameters
+    params = ToxBotAppParameters(interpreter_factory=lambda bot: EchobotInterpreter(bot))
+    # starts app
     app.main(params)
 
 

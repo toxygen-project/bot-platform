@@ -8,6 +8,6 @@ Tox bot platform provides easy way to create new bots for Tox messenger.
 [![License](https://img.shields.io/badge/license-GPLv3-blue.svg?style=flat)](https://raw.githubusercontent.com/toxygen-project/bot-platform/master/LICENSE.md)
 [![Build Status](https://travis-ci.org/toxygen-project/bot-platform.svg?branch=master)](https://travis-ci.org/toxygen-project/bot-platform)
 
-### [Install](/docs/install.md) - [Compile](/docs/compile.md) - [Examples](/examples/)
+### [Usage](/docs/usage.md) - [Install](/docs/install.md) - [Compile](/docs/compile.md) - [Examples](/examples/)
 
 ### Supported OS: Linux and Windows
