@@ -36,7 +36,7 @@ _commands = {
     'stop': CommandData('stops', ['admin'], 'Stops bot'),
     'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
     'ban pk': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
-    'roles': CommandData('roles', [], 'Prints your roles'),
+    'roles': CommandData('roles', ['user', 'admin'], 'Prints your roles'),
 }
 
 
@@ -53,13 +53,19 @@ def extend_command_list(new_commands):
 
 class BaseCommand:
 
-    def __init__(self, bot, command, arguments):
+    def __init__(self, bot, command, *arguments):
         self._bot = bot
         self._command = command
         self._arguments = arguments
+        self._is_valid = self._command in _commands
+
+    def get_is_valid(self):
+        return self._is_valid
+
+    is_valid = property(get_is_valid)
 
     def execute(self):
-        if self._command in _commands:
+        if self._is_valid:
             command_data = _commands[self._command]
             method = self._bot[command_data.method_name]
             self.run_method(method, command_data.roles)
@@ -76,7 +82,7 @@ class BaseCommand:
 class Command(BaseCommand):
 
     def __init__(self, bot, friend_number, command, *arguments):
-        super().__init__(bot, command, arguments)
+        super().__init__(bot, command, *arguments)
         self._friend_number = friend_number
 
     def invalid_command(self):
@@ -90,7 +96,7 @@ class Command(BaseCommand):
 class GcCommand(BaseCommand):
 
     def __init__(self, bot, gc_number, peer_number, command, *arguments):
-        super().__init__(bot, command, arguments)
+        super().__init__(bot, command, *arguments)
         self._gc_number = gc_number
         self._peer_number = peer_number
 
