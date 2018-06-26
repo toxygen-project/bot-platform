@@ -53,14 +53,6 @@ def extend_command_list(new_commands):
 
 class BaseCommand:
 
-    def __init__(self, is_valid):
-        self._is_valid = is_valid
-
-    def get_is_valid(self):
-        return self._is_valid
-
-    is_valid = property(get_is_valid)
-
     def execute(self):
         pass
 
@@ -68,7 +60,7 @@ class BaseCommand:
 class ExecutableCommand(BaseCommand):
 
     def __init__(self, action):
-        super().__init__(True)
+        super().__init__()
         self._action = action
 
     def execute(self):
@@ -78,13 +70,13 @@ class ExecutableCommand(BaseCommand):
 class BaseDefaultCommand(BaseCommand):
 
     def __init__(self, bot, command, *arguments):
-        super().__init__(self._command in _commands)
+        super().__init__()
         self._bot = bot
         self._command = command
         self._arguments = arguments
 
     def execute(self):
-        if self._is_valid:
+        if self._command in _commands:
             command_data = _commands[self._command]
             method = self._bot[command_data.method_name]
             self.run_method(method, command_data.roles)

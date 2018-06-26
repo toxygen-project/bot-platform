@@ -13,7 +13,7 @@ class EchobotInterpreter(Interpreter):
         # Remove this section if you don't need basic commands support
         ##############################################################
         command = super()._parse_command(message, friend_number)
-        if command.is_valid:
+        if command is not None:
             return command
         ##############################################################
 

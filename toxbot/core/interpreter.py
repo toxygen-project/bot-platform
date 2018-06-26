@@ -14,18 +14,37 @@ class Interpreter:
 
     def interpret(self, message, friend_number):
         message = message.strip()
-        command = self._parse_command(message, friend_number)
+        command = self._get_command(message, friend_number)
         self._execute_command(command)
 
     def interpret_gc_message(self, message, gc_number, peer_number):
         message = message.strip()
-        command = self._parse_gc_command(message, gc_number, peer_number)
+        command = self._get_gc_command(message, gc_number, peer_number)
         self._execute_command(command)
 
     def interpret_gc_private_message(self, message, gc_number, peer_number):
         message = message.strip()
-        command = self._parse_gc_private_command(message, gc_number, peer_number)
+        command = self._get_gc_private_command(message, gc_number, peer_number)
         self._execute_command(command)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Commands loading
+    # -----------------------------------------------------------------------------------------------------------------
+
+    def _get_command(self, message, friend_number):
+        command = self._parse_command(message, friend_number)
+
+        return command or InvalidCommand(self._bot, friend_number)
+
+    def _get_gc_command(self, message, gc_number, peer_number):
+        command = self._parse_gc_command(message,gc_number, peer_number)
+
+        return command or InvalidGcCommand(self._bot, gc_number, peer_number)
+
+    def _get_gc_private_command(self, message, gc_number, peer_number):
+        command = self._parse_gc_private_command(message, gc_number, peer_number)
+
+        return command or InvalidGcPrivateCommand(self._bot, gc_number, peer_number)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Parsing
@@ -45,14 +64,12 @@ class Interpreter:
             return self._create_command(friend_number, 'status_message ', new_status_message)
         elif message in ('id', 'info'):
             return self._create_command(friend_number, message)
-        else:
-            return InvalidCommand(self._bot, friend_number)
 
     def _parse_gc_command(self, message, gc_number, peer_number):
-        return InvalidGcCommand(self._bot, gc_number, peer_number)
+        pass
 
     def _parse_gc_private_command(self, message, gc_number, peer_number):
-        return InvalidGcPrivateCommand(self._bot, gc_number, peer_number)
+        pass
 
     # -----------------------------------------------------------------------------------------------------------------
     # Other private methods
