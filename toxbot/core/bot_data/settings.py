@@ -36,10 +36,12 @@ class Settings(dict):
             'download_nodes': False,
             'auto_rights': 'user',
             'users': {},
-            "ban": {
-                "nicks": [],
-                "public_keys": []
-            }
+            'ban': {
+                'nicks': [],
+                'public_keys': []
+            },
+            'reconnection_timeout': 60,
+            'automatic_reconnection_interval': 0
         }
 
     def upgrade(self):

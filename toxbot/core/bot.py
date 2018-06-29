@@ -2,6 +2,7 @@ from core.permissions_checker import *
 from wrapper.toxcore_enums_and_consts import *
 from core.util import log, get_time, time_from_seconds
 from core.common.tox_save import ToxSave
+import threading
 
 
 class Bot(ToxSave):
@@ -15,6 +16,8 @@ class Bot(ToxSave):
         self._reconnect_action = reconnect_action
 
         self._start_time = get_time()
+        self._timer = None
+        self._waiting_for_reconnection = False
 
     # -----------------------------------------------------------------------------------------------------------------
     # Common methods
@@ -40,7 +43,9 @@ class Bot(ToxSave):
             self._profile_manager.save_profile()
 
     def update_connection_status(self, connection_status):
-        pass
+        if connection_status == TOX_CONNECTION['NONE'] and not self._waiting_for_reconnection:
+            self._waiting_for_reconnection = True
+            self._set_timer()
 
     def send_message_to_friend(self, friend_number, message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
         """
@@ -81,7 +86,7 @@ class Bot(ToxSave):
     def create_info(self):
         current_time = get_time()
         online_time = time_from_seconds(current_time - self._start_time)
-        friends_list = self._tox.self_get_friend_list()
+        friends_list = self._get_friends_list()
         friends_count = len(friends_list)
         online_friends_count = sum([
             self._tox.friend_get_connection_status(friend) != TOX_CONNECTION['NONE'] for friend in friends_list
@@ -142,7 +147,7 @@ class Bot(ToxSave):
 
     @authorize
     def send_message(self, friend_number, message, destination_friend=None):
-        friends_list = [destination_friend] if destination_friend is not None else self._tox.self_get_friend_list()
+        friends_list = [destination_friend] if destination_friend is not None else self._get_friend_list()
         for friend in friends_list:
             self.send_message_to_friend(friend, message)
 
@@ -159,6 +164,18 @@ class Bot(ToxSave):
     def stop(self, friend_number):
         log('Closing application after stop command from friend ' + str(friend_number))
         self._stop_action()
+
+    @authorize
+    def reconnect(self, friend_number):
+        log('Reconnecting after command from friend ' + str(friend_number))
+        self._reconnect()
+
+    @authorize
+    def set_auto_reconnection_interval(self, friend_number, interval):
+        log('Auto reconnection interval was set to {} by friend {}'.format(interval, friend_number))
+        self._settings['automatic_reconnection_interval'] = interval
+        self._settings.save()
+        self.send_message_to_friend(friend_number, 'Successfully updated!')
 
     @authorize
     def set_roles_of_friend_by_public_key(self, friend_number, public_key, roles):
@@ -213,3 +230,29 @@ class Bot(ToxSave):
             messages.append(message)
 
         return messages
+
+    def _check_connection(self):
+        friends = self._get_friends_list()
+        statuses = map(lambda n: self._tox.friend_get_connection_status(n) != TOX_CONNECTION['NONE'], friends)
+        any_friends_available = any(statuses)
+        if not any_friends_available:
+            self._reconnect()
+        elif self._settings['automatic_reconnection_interval']:
+            self._set_timer(self._settings['automatic_reconnection_interval'], self._reconnect)
+
+    def _reconnect(self):
+        self._reconnect_action()
+        self._set_timer(self._settings['reconnection_timeout'], self._check_connection)
+
+    def _set_timer(self, interval, handler):
+        self._stop_timer_if_needed()
+        self._timer = threading.Timer(interval, handler)
+        self._timer.start()
+
+    def _stop_timer_if_needed(self):
+        if self._timer is not None:
+            self._timer.cancel()
+            self._timer = None
+
+    def _get_friends_list(self):
+        return self._tox.self_get_friend_list()

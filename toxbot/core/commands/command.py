@@ -33,10 +33,13 @@ _commands = {
     'info': CommandData('get_info', ['user', 'admin'], 'Prints my current status'),
     'help': CommandData('print_help', ['user', 'admin'], 'Prints commands list'),
     'message': CommandData('send_message', ['admin'], 'Sends message'),
-    'stop': CommandData('stops', ['admin'], 'Stops bot'),
+    'stop': CommandData('stop', ['admin'], 'Stops bot'),
     'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
     'ban pk': CommandData('ban_public_key', ['admin'], 'Ban user by public key'),
     'roles': CommandData('roles', ['user', 'admin'], 'Prints your roles'),
+    'reconnect': CommandData('reconnect', ['admin'], 'Asks bot to reconnect'),
+    'auto_reconnection': CommandData('set_auto_reconnection_interval', ['admin'],
+                                     'Sets automatic reconnection interval in seconds (0 to disable)')
 }
 
 
