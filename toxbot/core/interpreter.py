@@ -61,7 +61,7 @@ class Interpreter:
             return self._create_command(friend_number, 'status', int(new_status))
         elif message.startswith('status_message '):
             new_status_message = message[len('status_message '):]
-            return self._create_command(friend_number, 'status_message ', new_status_message)
+            return self._create_command(friend_number, 'status_message', new_status_message)
         elif message in ('id', 'info'):
             return self._create_command(friend_number, message)
 

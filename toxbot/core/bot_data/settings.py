@@ -41,7 +41,9 @@ class Settings(dict):
                 'public_keys': []
             },
             'reconnection_timeout': 60,
-            'automatic_reconnection_interval': 0
+            'automatic_reconnection_interval': 0,
+            'accept_requests': True,
+            'friend_request_password': None
         }
 
     def upgrade(self):

@@ -4,7 +4,6 @@ import sys
 from core.bot_data.profile_manager import ProfileManager
 from middleware.tox_factory import *
 from core.bot_data.settings import Settings
-import time
 import core.util as util
 from app_parameters import *
 
@@ -24,7 +23,7 @@ class ToxBotApplication:
     def main(self, parameters=None):
         self._parameters = parameters or ToxBotAppParameters()
 
-        print('Starting ToxBot v' + __version__)
+        util.log('Starting ToxBot v' + __version__)
 
         self._create_dependencies()
 
@@ -39,7 +38,7 @@ class ToxBotApplication:
         try:
             while not self._stop:
                 self._tox.iterate()
-                time.sleep(self._tox.iteration_interval() / 1000)
+                sleep(self._tox.iteration_interval() / 1000)
         except KeyboardInterrupt:
             print('Closing...')
 

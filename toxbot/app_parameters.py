@@ -7,7 +7,7 @@ class ToxBotAppParameters:
                  bot_factory=bot_default_factory,
                  interpreter_factory=interpreter_default_factory,
                  file_transfer_handler_factory=file_transfer_handler_default_factory,
-                 should_use_old_gc=True,
+                 should_use_old_gc=False,
                  callbacks_initializer=None):
         self._bot_factory = bot_factory
         self._interpreter_factory = interpreter_factory

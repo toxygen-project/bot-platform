@@ -81,7 +81,7 @@ class BaseDefaultCommand(BaseCommand):
     def execute(self):
         if self._command in _commands:
             command_data = _commands[self._command]
-            method = self._bot[command_data.method_name]
+            method = getattr(self._bot, command_data.method_name)
             self.run_method(method, command_data.roles)
         else:
             self.invalid_command()

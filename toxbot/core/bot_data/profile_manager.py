@@ -1,8 +1,8 @@
 import os.path
-import core.util as util
+import core.common.tox_save as tox_save
 
 
-class ProfileManager(util.ToxSave):
+class ProfileManager(tox_save.ToxSave):
 
     def __init__(self, profile_path):
         super().__init__(None)

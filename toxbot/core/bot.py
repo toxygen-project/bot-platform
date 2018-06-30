@@ -19,6 +19,8 @@ class Bot(ToxSave):
         self._timer = None
         self._waiting_for_reconnection = False
 
+        self._print_info()
+
     # -----------------------------------------------------------------------------------------------------------------
     # Common methods
     # -----------------------------------------------------------------------------------------------------------------
@@ -27,10 +29,16 @@ class Bot(ToxSave):
         if not self._permission_checker.check_permissions(roles, friend_number):
             raise PermissionsException(friend_number, command)
 
-    def process_friend_request(self, public_key):
-        if self._permission_checker.accept_request_from(public_key):
-            self._tox.friend_add_norequest(public_key)
-            self._profile_manager.save_profile()
+    def process_friend_request(self, public_key, message):
+        if not self._permission_checker.accept_request_from(public_key):
+            return
+        password = self._settings['friend_request_password']
+        if password is not None and message != password:
+            return
+        self._tox.friend_add_norequest(public_key)
+        self._profile_manager.save_profile()
+        self._settings['users'][public_key] = [self._settings['auto_rights']]
+        self._settings.save()
 
     def process_gc_invite_request(self, friend_number, invite_data):
         if self._permission_checker.accept_gc_invite_from(friend_number):
@@ -45,7 +53,7 @@ class Bot(ToxSave):
     def update_connection_status(self, connection_status):
         if connection_status == TOX_CONNECTION['NONE'] and not self._waiting_for_reconnection:
             self._waiting_for_reconnection = True
-            self._set_timer()
+            self._set_timer(self._settings['reconnection_timeout'], self._check_connection)
 
     def send_message_to_friend(self, friend_number, message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
         """
@@ -113,7 +121,7 @@ class Bot(ToxSave):
 
     @authorize
     def set_name(self, friend_number, name):
-        self._tox.self_set_name(name)
+        self._tox.self_set_name(name.encode('utf-8'))
 
     @authorize
     def set_status(self, friend_number, status):
@@ -121,11 +129,11 @@ class Bot(ToxSave):
 
     @authorize
     def set_status_message(self, friend_number, status_message):
-        self._tox.self_set_status_message(status_message)
+        self._tox.self_set_status_message(status_message.encode('utf-8'))
 
     @authorize
     def get_id(self, friend_number):
-        tox_id = self._tox.self_get_address()
+        tox_id = self._get_tox_id()
         self.send_message_to_friend(friend_number, tox_id)
 
     @authorize
@@ -147,7 +155,7 @@ class Bot(ToxSave):
 
     @authorize
     def send_message(self, friend_number, message, destination_friend=None):
-        friends_list = [destination_friend] if destination_friend is not None else self._get_friend_list()
+        friends_list = [destination_friend] if destination_friend is not None else self._get_friends_list()
         for friend in friends_list:
             self.send_message_to_friend(friend, message)
 
@@ -211,6 +219,7 @@ class Bot(ToxSave):
 
     @staticmethod
     def _split_message(message):
+        message = message.encode('utf-8')
         messages = []
         while len(message) > TOX_MAX_MESSAGE_LENGTH:
             size = TOX_MAX_MESSAGE_LENGTH * 4 / 5
@@ -256,3 +265,11 @@ class Bot(ToxSave):
 
     def _get_friends_list(self):
         return self._tox.self_get_friend_list()
+
+    def _print_info(self):
+        class_name = self.__class__.__name__
+        tox_id = self._get_tox_id()
+        log('Starting bot "{}" with ID {}'.format(class_name, tox_id))
+
+    def _get_tox_id(self):
+        return self._tox.self_get_address()

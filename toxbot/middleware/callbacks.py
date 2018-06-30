@@ -37,7 +37,7 @@ def friend_message(interpreter):
     """
     def wrapped(tox, friend_number, message_type, message, size, user_data):
         message = str(message, 'utf-8')
-        interpreter.execute_command(message)
+        interpreter.interpret(message, friend_number)
 
     return wrapped
 
@@ -49,8 +49,9 @@ def friend_request(bot):
         """
         key = ''.join(chr(x) for x in public_key[:TOX_PUBLIC_KEY_SIZE])
         tox_pk = bin_to_string(key, TOX_PUBLIC_KEY_SIZE)
+        message = str(message[:message_size], 'utf-8')
         print('Friend request', tox_pk)
-        bot.process_friend_request(tox_pk)
+        bot.process_friend_request(tox_pk, message)
 
     return wrapped
 
@@ -73,7 +74,7 @@ def tox_file_recv(file_transfer_handler):
             file_transfer_handler.process_incoming_transfer(friend_number, file_number, file_name, file_size)
         else:  # AVATAR
             print('Incoming avatar')
-            file_transfer_handler.decline_transfer(friend_number, file_number)
+            file_transfer_handler.cancel_transfer(friend_number, file_number)
 
     return wrapped
 
