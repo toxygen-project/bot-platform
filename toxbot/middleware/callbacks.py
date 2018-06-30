@@ -106,7 +106,7 @@ def file_recv_control(file_transfer_handler):
     """
     def wrapped(tox, friend_number, file_number, file_control, user_data):
         if file_control == TOX_FILE_CONTROL['CANCEL']:
-            file_transfer_handler.cancel_transfer(friend_number, file_number, True)
+            file_transfer_handler.transfer_cancelled(friend_number, file_number)
         elif file_control == TOX_FILE_CONTROL['PAUSE']:
             file_transfer_handler.pause_transfer(friend_number, file_number, True)
         elif file_control == TOX_FILE_CONTROL['RESUME']:
@@ -180,6 +180,7 @@ def init_callbacks(bot, tox, interpreter, file_transfer_handler, should_use_old_
     """
     tox.callback_self_connection_status(self_connection_status(bot))
 
+    tox.callback_friend_status(friend_status(file_transfer_handler))
     tox.callback_friend_message(friend_message(interpreter))
     tox.callback_friend_request(friend_request(bot))
 

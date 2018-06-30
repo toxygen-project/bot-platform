@@ -1,6 +1,7 @@
 from core.bootstrap.bootstrap import generate_nodes, download_nodes_list
 from middleware.callbacks import init_callbacks
 import sys
+from time import sleep
 from core.bot_data.profile_manager import ProfileManager
 from middleware.tox_factory import *
 from core.bot_data.settings import Settings

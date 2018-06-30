@@ -1,5 +1,5 @@
 from core.file_transfers.file_transfers import *
-from core.util import get_avatar_path
+from core.util import get_avatar_path, get_settings_path
 from wrapper.toxcore_enums_and_consts import *
 from core.file_transfers.file_transfer_thread import start, stop
 from core.common.tox_save import ToxSave
@@ -15,10 +15,15 @@ class FileTransfersHandler(ToxSave):
         super().__init__(tox)
         self._permission_checker = permission_checker
         self._file_transfers = {}  # dict of file transfers. key - tuple (friend_number, file_number)
+        self._avatar_transfer = None
         start()
 
     def __del__(self):
         stop()
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Public methods
+    # -----------------------------------------------------------------------------------------------------------------
 
     def send_avatar(self, friend_number):
         avatar_path = get_avatar_path()
@@ -34,9 +39,10 @@ class FileTransfersHandler(ToxSave):
         if not self._permission_checker.check_permissions(['admin'], friend_number):
             self.cancel_transfer(friend_number, file_number)
         elif file_name == FileTransfersHandler.SETTINGS_FILE_NAME:
-            self.accept_transfer(friend_number, file_number, get_avatar_path(), file_size)
+            self.accept_transfer(friend_number, file_number, get_settings_path(), file_size)
         elif file_name == FileTransfersHandler.AVATAR_FILE_NAME:
-            pass
+            self._avatar_transfer = (friend_number, file_number)
+            self.accept_transfer(friend_number, file_number, get_avatar_path(), file_size)
         else:
             self.cancel_transfer(friend_number, file_number)
 
@@ -79,6 +85,8 @@ class FileTransfersHandler(ToxSave):
         if (friend_number, file_number) in self._file_transfers:
             transfer = self._file_transfers[(friend_number, file_number)]
             transfer.write_chunk(position, data)
+            if data is None:
+                self.remove_transfer(friend_number, file_number)
 
     def outgoing_chunk(self, friend_number, file_number, position, size):
         """
@@ -87,3 +95,21 @@ class FileTransfersHandler(ToxSave):
         if (friend_number, file_number) in self._file_transfers:
             transfer = self._file_transfers[(friend_number, file_number)]
             transfer.send_chunk(position, size)
+            if size:
+                return
+            if self._avatar_transfer is not None:
+                avatar_friend_number, avatar_file_number = self._avatar_transfer
+                if friend_number == avatar_friend_number and file_number == avatar_file_number:
+                    self._avatar_transfer = None
+                    self._send_avatar_to_all()
+            self.remove_transfer(friend_number, file_number)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Private methods
+    # -----------------------------------------------------------------------------------------------------------------
+
+    def _send_avatar_to_all(self):
+        friends = self._tox.self_get_friend_list()
+        for friend in friends:
+            if self._tox.friend_get_connection_status(friend):
+                self.send_avatar(friend)

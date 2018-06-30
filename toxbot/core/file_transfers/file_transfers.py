@@ -1,18 +1,19 @@
 from wrapper.toxcore_enums_and_consts import TOX_FILE_KIND, TOX_FILE_CONTROL
 from os.path import basename, getsize
-from os import remove
-from time import time, sleep
+from os import remove, rename
+from time import time
 from wrapper.tox import Tox
 
 
-TOX_FILE_TRANSFER_STATE = {
+FILE_TRANSFER_STATE = {
     'RUNNING': 0,
     'PAUSED_BY_USER': 1,
     'CANCELLED': 2,
     'FINISHED': 3,
     'PAUSED_BY_FRIEND': 4,
     'INCOMING_NOT_STARTED': 5,
-    'OUTGOING_NOT_STARTED': 6
+    'OUTGOING_NOT_STARTED': 6,
+    'UNSENT': 7
 }
 
 
@@ -25,44 +26,61 @@ class FileTransfer:
         self._path = path
         self._tox = tox
         self._friend_number = friend_number
-        self.state = TOX_FILE_TRANSFER_STATE['RUNNING']
+        self._state = FILE_TRANSFER_STATE['RUNNING']
         self._file_number = file_number
         self._creation_time = None
         self._size = float(size)
         self._done = 0
-        self._file_id = None
-
-    def set_tox(self, tox):
-        self._tox = tox
+        self._file_id = self._file = None
 
     def get_file_number(self):
         return self._file_number
 
+    file_number = property(get_file_number)
+
+    def get_state(self):
+        return self._state
+
+    def set_state(self, value):
+        self._state = value
+
+    state = property(get_state, set_state)
+
     def get_friend_number(self):
         return self._friend_number
 
-    def get_id(self):
+    friend_number = property(get_friend_number)
+
+    def get_file_id(self):
         return self._file_id
+
+    file_id = property(get_file_id)
 
     def get_path(self):
         return self._path
 
+    path = property(get_path)
+
+    def get_size(self):
+        return self._size
+
+    size = property(get_size)
+
     def cancel(self):
         self.send_control(TOX_FILE_CONTROL['CANCEL'])
-        if hasattr(self, '_file'):
+        if self._file is not None:
             self._file.close()
 
     def cancelled(self):
-        if hasattr(self, '_file'):
-            sleep(0.1)
+        if self._file is not None:
             self._file.close()
-        self.state = TOX_FILE_TRANSFER_STATE['CANCELLED']
+        self.state = FILE_TRANSFER_STATE['CANCELLED']
 
     def pause(self, by_friend):
         if not by_friend:
             self.send_control(TOX_FILE_CONTROL['PAUSE'])
         else:
-            self.state = TOX_FILE_TRANSFER_STATE['PAUSED_BY_FRIEND']
+            self.state = FILE_TRANSFER_STATE['PAUSED_BY_FRIEND']
 
     def send_control(self, control):
         if self._tox.file_control(self._friend_number, self._file_number, control):
@@ -80,12 +98,14 @@ class SendTransfer(FileTransfer):
 
     def __init__(self, path, tox, friend_number, kind=TOX_FILE_KIND['DATA'], file_id=None):
         if path is not None:
-            self._file = open(path, 'rb')
+            fl = open(path, 'rb')
             size = getsize(path)
         else:
+            fl = None
             size = 0
         super().__init__(path, tox, friend_number, size)
-        self.state = TOX_FILE_TRANSFER_STATE['OUTGOING_NOT_STARTED']
+        self._file = fl
+        self.state = FILE_TRANSFER_STATE['OUTGOING_NOT_STARTED']
         self._file_number = tox.file_send(friend_number, kind, size, file_id,
                                           bytes(basename(path), 'utf-8') if path else b'')
         self._file_id = self.get_file_id()
@@ -104,23 +124,24 @@ class SendTransfer(FileTransfer):
             self._tox.file_send_chunk(self._friend_number, self._file_number, position, data)
             self._done += size
         else:
-            if hasattr(self, '_file'):
+            if self._file is not None:
                 self._file.close()
-            self.state = TOX_FILE_TRANSFER_STATE['FINISHED']
+            self.state = FILE_TRANSFER_STATE['FINISHED']
 
 
 class SendAvatar(SendTransfer):
     """
-    Send avatar to friend.
+    Send avatar to friend. Doesn't need file transfer item
     """
 
     def __init__(self, path, tox, friend_number):
         if path is None:
-            hash = None
+            avatar_hash = None
         else:
             with open(path, 'rb') as fl:
-                hash = Tox.hash(fl.read())
-        super().__init__(path, tox, friend_number, TOX_FILE_KIND['AVATAR'], hash)
+                avatar_hash = Tox.hash(fl.read())
+        super().__init__(path, tox, friend_number, TOX_FILE_KIND['AVATAR'], avatar_hash)
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Receive file
@@ -130,7 +151,7 @@ class SendAvatar(SendTransfer):
 class ReceiveTransfer(FileTransfer):
 
     def __init__(self, path, tox, friend_number, size, file_number, position=0):
-        super().__init__(path, tox, friend_number, size, file_number)
+        super().__init__(path + '.tmp', tox, friend_number, size, file_number)
         self._file = open(self._path, 'wb')
         self._file_size = position
         self._file.truncate(position)
@@ -144,6 +165,7 @@ class ReceiveTransfer(FileTransfer):
 
     def total_size(self):
         self._missed.add(self._file_size)
+
         return min(self._missed)
 
     def write_chunk(self, position, data):
@@ -156,7 +178,8 @@ class ReceiveTransfer(FileTransfer):
             self._creation_time = time()
         if data is None:
             self._file.close()
-            self.state = TOX_FILE_TRANSFER_STATE['FINISHED']
+            rename(self._path, self._path[:-4])
+            self.state = FILE_TRANSFER_STATE['FINISHED']
         else:
             data = bytearray(data)
             if self._file_size < position:
