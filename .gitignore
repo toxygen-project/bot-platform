@@ -4,4 +4,6 @@
 dist
 build
 *.json
+*.png
+*.txt
 
