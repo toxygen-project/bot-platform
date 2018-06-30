@@ -85,8 +85,14 @@ class FileTransfersHandler(ToxSave):
         if (friend_number, file_number) in self._file_transfers:
             transfer = self._file_transfers[(friend_number, file_number)]
             transfer.write_chunk(position, data)
-            if data is None:
-                self.remove_transfer(friend_number, file_number)
+            if data is not None:
+                return
+            if self._avatar_transfer is not None:
+                avatar_friend_number, avatar_file_number = self._avatar_transfer
+                if friend_number == avatar_friend_number and file_number == avatar_file_number:
+                    self._avatar_transfer = None
+                    self._send_avatar_to_all()
+            self.remove_transfer(friend_number, file_number)
 
     def outgoing_chunk(self, friend_number, file_number, position, size):
         """
@@ -95,14 +101,8 @@ class FileTransfersHandler(ToxSave):
         if (friend_number, file_number) in self._file_transfers:
             transfer = self._file_transfers[(friend_number, file_number)]
             transfer.send_chunk(position, size)
-            if size:
-                return
-            if self._avatar_transfer is not None:
-                avatar_friend_number, avatar_file_number = self._avatar_transfer
-                if friend_number == avatar_friend_number and file_number == avatar_file_number:
-                    self._avatar_transfer = None
-                    self._send_avatar_to_all()
-            self.remove_transfer(friend_number, file_number)
+            if not size:
+                self.remove_transfer(friend_number, file_number)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Private methods

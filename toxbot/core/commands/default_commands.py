@@ -19,8 +19,8 @@ class InvalidGcPrivateCommand(GcCommand):
         super().__init__(bot, gc_number, peer_number, 'invalid', 'Invalid gc private command.')
 
 
-class HelpCommand(Command):
+class HelpCommand(ExecutableCommand):
 
     def __init__(self, bot, friend_number):
         help_text = get_commands_descriptions()
-        super().__init__(bot, friend_number, 'help', help_text)
+        super().__init__(lambda: bot.print_help(friend_number, help_text))
