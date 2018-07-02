@@ -34,6 +34,7 @@ class Settings(dict):
             'end_port': 0,
             'tcp_port': 0,
             'download_nodes': False,
+            'lan_discovery': False,
             'auto_rights': 'user',
             'users': {},
             'ban': {

@@ -7,8 +7,10 @@ def interpreter_default_factory(bot):
     return Interpreter(bot)
 
 
-def bot_default_factory(tox, settings, profile_manager, permission_checker, stop_action, reconnect_action):
-    return Bot(tox, settings, profile_manager, permission_checker, stop_action, reconnect_action)
+def bot_default_factory(tox, settings, profile_manager, permission_checker, file_transfer_handler,
+                        stop_action, reconnect_action):
+    return Bot(tox, settings, profile_manager, permission_checker, file_transfer_handler,
+               stop_action, reconnect_action)
 
 
 def file_transfer_handler_default_factory(tox, permission_checker):

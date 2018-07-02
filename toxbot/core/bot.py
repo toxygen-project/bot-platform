@@ -7,11 +7,13 @@ import threading
 
 class Bot(ToxSave):
 
-    def __init__(self, tox, settings, profile_manager, permission_checker, stop_action, reconnect_action):
+    def __init__(self, tox, settings, profile_manager, permission_checker, file_transfer_handler,
+                 stop_action, reconnect_action):
         super().__init__(tox)
         self._settings = settings
         self._profile_manager = profile_manager
         self._permission_checker = permission_checker
+        self._file_transfer_handler = file_transfer_handler
         self._stop_action = stop_action
         self._reconnect_action = reconnect_action
 
@@ -164,7 +166,7 @@ class Bot(ToxSave):
         if destination_group is not None:
             groups_list = [destination_group]
         else:
-            groups_list = range(self._tox.group_get_number_groups())
+            groups_list = self._get_groups_list()
         for group in groups_list:
             self.send_message_to_group(group, message)
 
@@ -265,6 +267,9 @@ class Bot(ToxSave):
 
     def _get_friends_list(self):
         return self._tox.self_get_friend_list()
+
+    def _get_groups_list(self):
+        return range(self._tox.group_get_number_groups())
 
     def _print_info(self):
         class_name = self.__class__.__name__

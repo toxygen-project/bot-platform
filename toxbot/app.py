@@ -72,7 +72,8 @@ class ToxBotApplication:
         self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox,
                                                                                      self._permission_checker)
         self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,
-                                                 self._permission_checker, self._stop, self._reconnect)
+                                                 self._permission_checker, self._file_transfer_handler,
+                                                 self._stop, self._reconnect)
         self._interpreter = self._parameters.interpreter_factory(self._bot)
 
     def _init_callbacks(self):
