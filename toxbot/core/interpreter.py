@@ -1,6 +1,7 @@
 from core.commands.default_commands import *
 from core.permissions_checker import *
 from core.util import log
+from wrapper.toxcore_enums_and_consts import *
 
 
 class Interpreter:
@@ -60,7 +61,7 @@ class Interpreter:
             new_status = message[len('status '):]
             try:
                 status = int(new_status)
-                if status < 0 or status > 2:
+                if status < TOX_USER_STATUS['NONE'] or status > TOX_USER_STATUS['BUSY']:
                     raise ValueError()
                 return self._create_command(friend_number, 'status', status)
             except ValueError:
@@ -68,8 +69,26 @@ class Interpreter:
         elif message.startswith('status_message '):
             new_status_message = message[len('status_message '):]
             return self._create_command(friend_number, 'status_message', new_status_message)
-        elif message in ('id', 'info'):
+        elif message in ('id', 'info', 'reconnect', 'roles', 'stop'):
             return self._create_command(friend_number, message)
+        elif message.startswith('auto_reconnection '):
+            reconnection_interval = message[len('auto_reconnection '):]
+            try:
+                reconnection_interval = int(reconnection_interval)
+                if reconnection_interval < 0:
+                    raise ValueError()
+                return self._create_command(friend_number, 'auto_reconnection', reconnection_interval)
+            except ValueError:
+                return
+        elif message.startswith('ban pk '):
+            public_key = message[len('ban pk '):]
+            if len(public_key) == TOX_PUBLIC_KEY_SIZE * 2:
+                return self._create_command(friend_number, 'ban pk', public_key)
+        elif message.startswith('ban nick '):
+            nick = message[len('ban pk '):]
+            return self._create_command(friend_number, 'ban nick', nick)
+
+        return None  # command was not found
 
     def _parse_gc_command(self, message, gc_number, peer_number):
         pass

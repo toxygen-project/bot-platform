@@ -51,7 +51,6 @@ class Settings(dict):
         default = Settings.get_default_settings()
         for key in default:
             if key not in self:
-                print(key)
                 self[key] = default[key]
         self.save()
 
