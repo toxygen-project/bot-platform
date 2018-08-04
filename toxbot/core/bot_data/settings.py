@@ -44,7 +44,8 @@ class Settings(dict):
             'reconnection_timeout': 60,
             'automatic_reconnection_interval': 0,
             'accept_requests': True,
-            'friend_request_password': None
+            'friend_request_password': None,
+            'maximum_friend_inactivity_period': 90
         }
 
     def upgrade(self):

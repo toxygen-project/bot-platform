@@ -18,14 +18,14 @@ class Interpreter:
         command = self._get_command(message, friend_number)
         self._execute_command(command)
 
-    def interpret_gc_message(self, message, gc_number, peer_number):
+    def interpret_gc_message(self, message, gc_number, peer_id):
         message = message.strip()
-        command = self._get_gc_command(message, gc_number, peer_number)
+        command = self._get_gc_command(message, gc_number, peer_id)
         self._execute_command(command)
 
-    def interpret_gc_private_message(self, message, gc_number, peer_number):
+    def interpret_gc_private_message(self, message, gc_number, peer_id):
         message = message.strip()
-        command = self._get_gc_private_command(message, gc_number, peer_number)
+        command = self._get_gc_private_command(message, gc_number, peer_id)
         self._execute_command(command)
 
     # -----------------------------------------------------------------------------------------------------------------
@@ -37,15 +37,15 @@ class Interpreter:
 
         return command or InvalidCommand(self._bot, friend_number)
 
-    def _get_gc_command(self, message, gc_number, peer_number):
-        command = self._parse_gc_command(message,gc_number, peer_number)
+    def _get_gc_command(self, message, gc_number, peer_id):
+        command = self._parse_gc_command(message,gc_number, peer_id)
 
-        return command or InvalidGcCommand(self._bot, gc_number, peer_number)
+        return command or InvalidGcCommand(self._bot, gc_number, peer_id)
 
-    def _get_gc_private_command(self, message, gc_number, peer_number):
-        command = self._parse_gc_private_command(message, gc_number, peer_number)
+    def _get_gc_private_command(self, message, gc_number, peer_id):
+        command = self._parse_gc_private_command(message, gc_number, peer_id)
 
-        return command or InvalidGcPrivateCommand(self._bot, gc_number, peer_number)
+        return command or InvalidGcPrivateCommand(self._bot, gc_number, peer_id)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Parsing
@@ -90,10 +90,10 @@ class Interpreter:
 
         return None  # command was not found
 
-    def _parse_gc_command(self, message, gc_number, peer_number):
+    def _parse_gc_command(self, message, gc_number, peer_id):
         pass
 
-    def _parse_gc_private_command(self, message, gc_number, peer_number):
+    def _parse_gc_private_command(self, message, gc_number, peer_id):
         pass
 
     # -----------------------------------------------------------------------------------------------------------------

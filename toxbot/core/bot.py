@@ -147,8 +147,8 @@ class Bot(ToxSave):
     @authorize
     def remove_friend_by_public_key(self, friend_number, public_key):
         try:
-            friend = self._tox.friend_by_public_key(public_key)
-            self._tox.friend_delete(friend)
+            friend_number = self._tox.friend_by_public_key(public_key)
+            self._delete_friend(friend_number)
         except Exception as ex:
             log('Exception on friend delete command: ' + str(ex))
             self.send_message_to_friend(friend_number, 'No such friend is known.')
@@ -179,6 +179,11 @@ class Bot(ToxSave):
     def reconnect(self, friend_number):
         log('Reconnecting after command from friend ' + str(friend_number))
         self._reconnect()
+
+    @authorize
+    def cleanup_friends_list(self, friend_number):
+        log('Removing inactive friends after command from friend ' + str(friend_number))
+        self._cleanup_friends_list()
 
     @authorize
     def set_auto_reconnection_interval(self, friend_number, interval):
@@ -265,12 +270,6 @@ class Bot(ToxSave):
             self._timer.cancel()
             self._timer = None
 
-    def _get_friends_list(self):
-        return self._tox.self_get_friend_list()
-
-    def _get_groups_list(self):
-        return range(self._tox.group_get_number_groups())
-
     def _print_info(self):
         class_name = self.__class__.__name__
         tox_id = self._get_tox_id()
@@ -278,3 +277,21 @@ class Bot(ToxSave):
 
     def _get_tox_id(self):
         return self._tox.self_get_address()
+
+    def _cleanup_friends_list(self):
+        current_time = get_time()
+        period = self._settings['maximum_friend_inactivity_period']
+        friend_last_time_online_min_time = current_time - period * 26 * 60 * 60
+        for friend_number in self._get_friends_list():
+            last_time_online = self._tox.friend_get_last_online()
+            if last_time_online < friend_last_time_online_min_time:
+                self._delete_friend(friend_number)
+
+    def _delete_friend(self, friend_number):
+        self._tox.friend_delete(friend_number)
+
+    def _get_friends_list(self):
+        return self._tox.self_get_friend_list()
+
+    def _get_groups_list(self):
+        return range(self._tox.group_get_number_groups())

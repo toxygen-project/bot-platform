@@ -130,8 +130,8 @@ def group_message(interpreter):
     """
     New message in group chat
     """
-    def wrapped(tox_link, group_number, peer_number, message_type, message, length, user_data):
-        interpreter.interpret_gc_message(message[:length], group_number, peer_number)
+    def wrapped(tox_link, group_number, peer_id, message_type, message, length, user_data):
+        interpreter.interpret_gc_message(message[:length], group_number, peer_id)
 
     return wrapped
 
@@ -140,8 +140,9 @@ def group_private_message(interpreter):
     """
     New message in group chat
     """
-    def wrapped(tox_link, group_number, peer_number, message_type, message, length, user_data):
-        interpreter.interpret_gc_private_message(message[:length], group_number, peer_number)
+
+    def wrapped(tox_link, group_number, peer_id, message_type, message, length, user_data):
+        interpreter.interpret_gc_private_message(message[:length], group_number, peer_id)
 
     return wrapped
 
