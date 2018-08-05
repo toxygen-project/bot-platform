@@ -14,6 +14,7 @@ class ProfileManager(tox_save.ToxSave):
 
         with open(self._path, 'rb') as fl:
             data = fl.read()
+
         return data
 
     def save_profile(self):

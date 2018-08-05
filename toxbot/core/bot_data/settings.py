@@ -14,10 +14,10 @@ class Settings(dict):
                 data = fl.read()
             settings = json.loads(data)
             super().__init__(settings)
-            self.upgrade()
+            self._upgrade()
         else:
             super().__init__(Settings.get_default_settings())
-            self.save()
+        self.save()
 
     @staticmethod
     def get_default_settings():
@@ -48,14 +48,13 @@ class Settings(dict):
             'maximum_friend_inactivity_period': 90
         }
 
-    def upgrade(self):
-        default = Settings.get_default_settings()
-        for key in default:
-            if key not in self:
-                self[key] = default[key]
-        self.save()
-
     def save(self):
         text = json.dumps(self)
         with open(self._path, 'wt') as fl:
             fl.write(text)
+
+    def _upgrade(self):
+        default = Settings.get_default_settings()
+        for key in default:
+            if key not in self:
+                self[key] = default[key]

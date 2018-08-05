@@ -1,7 +1,7 @@
 from wrapper.toxcore_enums_and_consts import *
 from wrapper.tox import bin_to_string
-
 from core.file_transfers.file_transfer_thread import execute
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - current user
@@ -54,6 +54,7 @@ def friend_request(bot):
         bot.process_friend_request(tox_pk, message)
 
     return wrapped
+
 
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - file transfers
@@ -114,13 +115,14 @@ def file_recv_control(file_transfer_handler):
 
     return wrapped
 
+
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - new group chats
 # -----------------------------------------------------------------------------------------------------------------
 
 
 def group_invite(bot):
-    def wrapped(tox, friend_number, invite_data, length, user_data):
+    def wrapped(tox, friend_number, invite_data, length, group_name, group_name_length, user_data):
         bot.process_gc_invite_request(friend_number, bytes(invite_data[:length]))
 
     return wrapped
@@ -150,6 +152,7 @@ def group_private_message(interpreter):
 # -----------------------------------------------------------------------------------------------------------------
 # Callbacks - old group chats
 # -----------------------------------------------------------------------------------------------------------------
+
 
 def conference_invite(bot):
     def wrapped(tox, friend_number, invite_data, length, user_data):
