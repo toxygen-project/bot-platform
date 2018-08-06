@@ -39,7 +39,11 @@ class Bot(ToxSave):
             return
         self._tox.friend_add_norequest(public_key)
         self._profile_manager.save_profile()
-        self._settings['users'][public_key] = [self._settings['auto_rights']]
+        if self._tox.self_get_friend_list_size() == 0:
+            rights = 'admin'  # first friend is always admin
+        else:
+            rights = self._settings['auto_rights']
+        self._settings['users'][public_key] = [rights]
         self._settings.save()
 
     def process_gc_invite_request(self, friend_number, invite_data):
