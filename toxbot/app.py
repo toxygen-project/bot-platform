@@ -29,12 +29,7 @@ class ToxBotApplication:
         self._create_dependencies()
 
         self._init_callbacks()
-
-        # bootstrap
-        if self._settings['download_nodes']:
-            download_nodes_list()
-        for data in generate_nodes():
-            self._tox.bootstrap(*data)
+        self._bootstrap()
 
         try:
             while not self._stop:
@@ -54,11 +49,14 @@ class ToxBotApplication:
         self._profile_manager.save_profile()
         profile_data = self._profile_manager.load_profile()
         self._tox = tox_factory(profile_data, self._settings)
+        
         tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager,
                       self._permission_checker]
         for tox_saver in tox_savers:
             tox_saver.set_tox(self._tox)
+
         self._init_callbacks()
+        self._bootstrap()
 
     def _create_dependencies(self):
         self._profile_manager = ProfileManager(self._path)
@@ -82,6 +80,12 @@ class ToxBotApplication:
         if self._parameters.callbacks_initializer is not None:
             self._parameters.callbacks_initializer(self._bot, self._tox, self._interpreter,
                                                    self._file_transfer_handler, self._parameters.should_use_old_gc)
+
+    def _bootstrap(self):
+        if self._settings['download_nodes']:
+            download_nodes_list()
+        for data in generate_nodes():
+            self._tox.bootstrap(*data)
 
 
 def run_app(profile_path):

@@ -10,7 +10,6 @@ RUN cd ~ && apt-get install python3 python3-setuptools -y && \
 git clone https://github.com/toxygen-project/bot-platform.git && \
 cd bot-platform && python3 setup.py install
 
-RUN useradd -ms /bin/bash toxbot
-USER toxbot
+EXPOSE 443/tcp 443/udp 3389/tcp 3389/udp 33445/tcp 33445/udp 33446/tcp 33446/udp
 
 CMD ["toxbot"]

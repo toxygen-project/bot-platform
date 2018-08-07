@@ -21,7 +21,7 @@ class Node:
 
 
 def generate_nodes():
-    with open(get_abs_file_path(os.path.join('bootstrap', 'nodes.json')), 'rt') as fl:
+    with open(get_abs_file_path('nodes.json', __file__), 'rt') as fl:
         json_nodes = json.loads(fl.read())['nodes']
     nodes = map(lambda json_node: Node(json_node), json_nodes)
     sorted_nodes = sorted(nodes, key=lambda x: x.priority)[-4:]
@@ -33,7 +33,7 @@ def save_nodes(nodes):
     if not nodes:
         return
     print('Saving nodes...')
-    with open(get_abs_file_path('nodes.json'), 'wb') as fl:
+    with open(get_abs_file_path('nodes.json', __file__), 'wb') as fl:
         fl.write(nodes)
 
 

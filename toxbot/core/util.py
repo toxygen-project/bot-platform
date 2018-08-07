@@ -14,8 +14,8 @@ def log(data):
         fl.write(str(data) + '\n')
 
 
-def get_abs_file_path(file_path):
-    return os.path.join(curr_directory(), file_path)
+def get_abs_file_path(file_path, file=None):
+    return os.path.join(curr_directory(file or __file__), file_path)
 
 
 def get_base_directory(current_file=None):
