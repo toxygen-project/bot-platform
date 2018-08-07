@@ -19,6 +19,7 @@ setup(name='ToxBotPlatform',
           'toxbot.core.bot_data', 'toxbot.core.commands', 'toxbot.core.file_transfers', 'toxbot.core.common'
       ],
       include_package_data=True,
+      package_data={'toxbot.core.bootstrap': ['nodes.json']},
       classifiers=[
           'Programming Language :: Python :: 3 :: Only',
           'Programming Language :: Python :: 3.5',

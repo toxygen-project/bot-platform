@@ -2,7 +2,6 @@ import random
 import urllib.request
 from core.util import log, get_abs_file_path
 import json
-import os.path
 
 
 class Node:
@@ -46,4 +45,4 @@ def download_nodes_list():
         result = response.read()
         save_nodes(result)
     except Exception as ex:
-        log('TOX nodes loading error: ' + str(ex))
+        log('Tox nodes loading error: ' + str(ex))

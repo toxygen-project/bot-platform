@@ -49,7 +49,7 @@ class ToxBotApplication:
         self._profile_manager.save_profile()
         profile_data = self._profile_manager.load_profile()
         self._tox = tox_factory(profile_data, self._settings)
-        
+
         tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager,
                       self._permission_checker]
         for tox_saver in tox_savers:
