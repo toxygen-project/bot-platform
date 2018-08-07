@@ -1,9 +1,10 @@
 import os.path
 import time
+import platform
 
 
-def curr_directory():
-    return os.path.dirname(os.path.realpath(__file__))
+def curr_directory(current_file=None):
+    return os.path.dirname(os.path.realpath(current_file or __file__))
 
 
 def log(data):
@@ -15,6 +16,18 @@ def log(data):
 
 def get_abs_file_path(file_path):
     return os.path.join(curr_directory(), file_path)
+
+
+def get_base_directory(current_file=None):
+    return os.path.dirname(curr_directory(current_file or __file__))
+
+
+def get_libs_directory():
+    return get_app_directory('libs')
+
+
+def get_app_directory(directory_name):
+    return join_path(get_base_directory(), directory_name)
 
 
 def get_avatar_path():
@@ -29,9 +42,17 @@ def get_default_path():
     return get_abs_file_path('bot_data/bot.tox')
 
 
+def join_path(a, b):
+    return os.path.join(a, b)
+
+
 def time_from_seconds(seconds):
     return time.strftime('%D days %H hours %M minutes %S seconds', time.gmtime(seconds))
 
 
 def get_time():
     return int(time.time())
+
+
+def get_platform():
+    return platform.system()

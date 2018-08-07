@@ -84,15 +84,19 @@ class ToxBotApplication:
                                                    self._file_transfer_handler, self._parameters.should_use_old_gc)
 
 
-def main(profile_path):
+def run_app(profile_path):
     app = ToxBotApplication(profile_path)
     app.main()
 
 
-if __name__ == '__main__':
+def main():
     if len(sys.argv) > 1:
         path = sys.argv[1]
     else:
         path = util.get_default_path()
 
-    main(path)
+    run_app(path)
+
+
+if __name__ == '__main__':
+    main()
