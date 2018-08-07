@@ -1,5 +1,5 @@
 from ctypes import CDLL
-import utils.util as util
+import core.util as util
 
 
 class LibToxCore:
