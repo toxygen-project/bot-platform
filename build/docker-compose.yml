@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  toxbot:
+    image: toxbot
+    ports:
+      - "33449:33445"
+      - "33450:33446"
+

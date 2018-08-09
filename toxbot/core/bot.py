@@ -37,12 +37,14 @@ class Bot(ToxSave):
         password = self._settings['friend_request_password']
         if password is not None and message != password:
             return
+        friends_count = self._tox.self_get_friend_list_size()
         self._tox.friend_add_norequest(public_key)
         self._profile_manager.save_profile()
-        if self._tox.self_get_friend_list_size() == 0:
-            rights = 'admin'  # first friend is always admin
-        else:
+        if friends_count:
             rights = self._settings['auto_rights']
+        else:
+            log('Adding admin with pk ' + public_key)
+            rights = 'admin'  # first friend is always admin
         self._settings['users'][public_key] = [rights]
         self._settings.save()
 

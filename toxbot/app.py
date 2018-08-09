@@ -27,6 +27,7 @@ class ToxBotApplication:
         util.log('Starting ToxBot v' + __version__)
 
         self._create_dependencies()
+        self._save_profile()
 
         self._init_callbacks()
         self._bootstrap()
@@ -39,8 +40,11 @@ class ToxBotApplication:
             print('Closing...')
 
         self._settings.save()
-        self._profile_manager.save_profile()
+        self._save_profile()
         del self._tox
+
+    def _save_profile(self):
+        self._profile_manager.save_profile()
 
     def _stop(self):
         self._stop = True
@@ -86,6 +90,7 @@ class ToxBotApplication:
             download_nodes_list()
         for data in generate_nodes():
             self._tox.bootstrap(*data)
+            self._tox.add_tcp_relay(*data)
 
 
 def run_app(profile_path):
