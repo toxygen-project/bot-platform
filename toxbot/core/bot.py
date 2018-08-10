@@ -49,9 +49,12 @@ class Bot(ToxSave):
         self._settings.save()
 
     def process_gc_invite_request(self, friend_number, invite_data):
-        if self._permission_checker.accept_gc_invite_from(friend_number):
-            self._tox.group_invite_accept(invite_data, friend_number)
-            self._profile_manager.save_profile()
+        if not self._permission_checker.accept_gc_invite_from(friend_number):
+            return
+        nick = self._tox.self_get_name()
+        status = self._tox.self_get_status()
+        self._tox.group_invite_accept(invite_data, friend_number, nick, status)
+        self._profile_manager.save_profile()
 
     def process_conference_invite_request(self, friend_number, invite_data):
         if self._permission_checker.accept_gc_invite_from(friend_number):
@@ -129,7 +132,7 @@ class Bot(ToxSave):
 
     @authorize
     def set_name(self, friend_number, name):
-        self._tox.self_set_name(name.encode('utf-8'))
+        self._tox.self_set_name(name)
 
     @authorize
     def set_status(self, friend_number, status):
@@ -137,7 +140,7 @@ class Bot(ToxSave):
 
     @authorize
     def set_status_message(self, friend_number, status_message):
-        self._tox.self_set_status_message(status_message.encode('utf-8'))
+        self._tox.self_set_status_message(status_message)
 
     @authorize
     def get_id(self, friend_number):
