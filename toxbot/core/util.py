@@ -47,7 +47,11 @@ def join_path(a, b):
 
 
 def time_from_seconds(seconds):
-    return time.strftime('%d days %H hours %M minutes %S seconds', time.gmtime(seconds))
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    days, hours = divmod(hours, 24)
+
+    return '{} days {} hours {} minutes {} seconds'.format(days, hours, minutes, seconds)
 
 
 def get_time():

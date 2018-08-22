@@ -8,12 +8,13 @@ import threading
 class Bot(ToxSave):
 
     def __init__(self, tox, settings, profile_manager, permission_checker, file_transfer_handler,
-                 stop_action, reconnect_action):
+                 group_service, stop_action, reconnect_action):
         super().__init__(tox)
         self._settings = settings
         self._profile_manager = profile_manager
         self._permission_checker = permission_checker
         self._file_transfer_handler = file_transfer_handler
+        self._group_service = group_service
         self._stop_action = stop_action
         self._reconnect_action = reconnect_action
 
@@ -51,15 +52,9 @@ class Bot(ToxSave):
     def process_gc_invite_request(self, friend_number, invite_data):
         if not self._permission_checker.accept_gc_invite_from(friend_number):
             return
-        nick = self._tox.self_get_name()
-        status = self._tox.self_get_status()
-        self._tox.group_invite_accept(invite_data, friend_number, nick, status)
-        self._profile_manager.save_profile()
 
-    def process_conference_invite_request(self, friend_number, invite_data):
-        if self._permission_checker.accept_gc_invite_from(friend_number):
-            self._tox.conference_join(invite_data, friend_number)
-            self._profile_manager.save_profile()
+        self._group_service.accept_invite(friend_number, invite_data)
+        self._profile_manager.save_profile()
 
     def update_connection_status(self, connection_status):
         if connection_status == TOX_CONNECTION['NONE'] and not self._waiting_for_reconnection:
@@ -225,6 +220,30 @@ class Bot(ToxSave):
             self._settings['ban']['public_keys'].append(public_key)
             self._settings.save()
         self.send_message_to_friend(friend_number, 'Successfully banned public key ' + public_key)
+
+    @authorize
+    def send_roles(self, friend_number):
+        roles = self._permission_checker.get_user_roles(friend_number)
+        message = 'Roles: {}'.format(', '.join(roles))
+        self.send_message_to_friend(friend_number, message)
+
+    @authorize
+    def send_groups_list(self, friend_number):
+        group_names = self._group_service.get_groups_names()
+
+        message = ''
+        for i, group_name in enumerate(group_names):
+            message += '{}. {}\n'.format(str(i + 1), group_name)
+
+        self.send_message_to_friend(friend_number, message or 'No groups found')
+
+    @authorize
+    def leave_group(self, friend_number, group_order_number):
+        self._group_service.leave_group(group_order_number)
+
+    @authorize
+    def invite_to_group(self, friend_number, group_order_number):
+        self._group_service.invite_friend(friend_number, group_order_number)
 
     def print_help(self, friend_number, help_message):
         self.send_message_to_friend(friend_number, help_message)

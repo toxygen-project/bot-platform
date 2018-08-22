@@ -7,6 +7,8 @@ from middleware.tox_factory import *
 from core.bot_data.settings import Settings
 import core.util as util
 from app_parameters import *
+from core.groups.new_group_service import NewGroupService
+from core.groups.old_group_service import OldGroupService
 
 __version__ = '0.2'
 __maintainer__ = 'Ingvar'
@@ -19,6 +21,7 @@ class ToxBotApplication:
 
         self._tox = self._file_transfer_handler = self._bot = self._profile_manager = None
         self._interpreter = self._settings = self._parameters = self._permission_checker = None
+        self._group_service = None
         self._stop = False
 
     def main(self, parameters=None):
@@ -55,7 +58,7 @@ class ToxBotApplication:
         self._tox = tox_factory(profile_data, self._settings)
 
         tox_savers = [self._bot, self._file_transfer_handler, self._profile_manager,
-                      self._permission_checker]
+                      self._permission_checker, self._group_service]
         for tox_saver in tox_savers:
             tox_saver.set_tox(self._tox)
 
@@ -71,11 +74,13 @@ class ToxBotApplication:
         self._profile_manager.set_tox(self._tox)
         self._permission_checker = PermissionChecker(self._settings, self._tox)
 
+        group_service_class = OldGroupService if self._parameters.should_use_old_gc else NewGroupService
+        self._group_service = group_service_class(self._tox)
         self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox,
                                                                                      self._permission_checker)
         self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,
                                                  self._permission_checker, self._file_transfer_handler,
-                                                 self._stop, self._reconnect)
+                                                 self._group_service, self._stop, self._reconnect)
         self._interpreter = self._parameters.interpreter_factory(self._bot)
 
     def _init_callbacks(self):

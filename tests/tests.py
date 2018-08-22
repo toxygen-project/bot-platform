@@ -2,6 +2,7 @@ from toxbot.core.factories import interpreter_default_factory, bot_default_facto
 from wrapper.toxcore_enums_and_consts import TOX_USER_STATUS
 
 # TODO: add more tests
+# split into multiple files, add syntax check
 
 # -----------------------------------------------------------------------------------------------------------------
 # Common constants
@@ -62,7 +63,7 @@ class FakeTox:
 
     @staticmethod
     def self_set_name(name):
-        assert str(name, 'utf-8') == BOT_NAME
+        assert name == BOT_NAME
 
     @staticmethod
     def self_get_address():
@@ -87,4 +88,4 @@ class TestBot:
         tox = FakeTox()
         permission_checker = FakePermissionChecker()
 
-        return bot_default_factory(tox, None, None, permission_checker, None, None, None)
+        return bot_default_factory(tox, None, None, permission_checker, None, None, None, None)

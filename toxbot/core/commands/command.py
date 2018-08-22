@@ -36,10 +36,13 @@ _commands = {
     'stop': CommandData('stop', ['admin'], 'Stops bot'),
     'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
     'ban pk': CommandData('ban_public_key', ['admin'], 'Ban user by public key'),
-    'roles': CommandData('roles', ['user', 'admin'], 'Prints your roles'),
+    'roles': CommandData('send_roles', ['user', 'admin'], 'Prints your roles'),
     'reconnect': CommandData('reconnect', ['admin'], 'Asks bot to reconnect'),
     'auto_reconnection': CommandData('set_auto_reconnection_interval', ['admin'],
-                                     'Sets automatic reconnection interval in seconds (0 to disable)')
+                                     'Sets automatic reconnection interval in seconds (0 to disable)'),
+    'groups': CommandData('send_groups_list', ['user', 'admin'], 'Prints groups list'),
+    'leave': CommandData('leave_group', ['admin'], 'Leave group'),
+    'invite': CommandData('invite_to_group', ['user', 'admin'], 'Invites to group')
 }
 
 

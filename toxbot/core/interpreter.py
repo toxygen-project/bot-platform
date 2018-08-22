@@ -69,7 +69,7 @@ class Interpreter:
         elif message.startswith('status_message '):
             new_status_message = message[len('status_message '):]
             return self._create_command(friend_number, 'status_message', new_status_message)
-        elif message in ('id', 'info', 'reconnect', 'roles', 'stop'):
+        elif message in ('id', 'info', 'reconnect', 'roles', 'stop', 'groups'):
             return self._create_command(friend_number, message)
         elif message.startswith('auto_reconnection '):
             reconnection_interval = message[len('auto_reconnection '):]
@@ -87,6 +87,15 @@ class Interpreter:
         elif message.startswith('ban nick '):
             nick = message[len('ban pk '):]
             return self._create_command(friend_number, 'ban nick', nick)
+        elif message.startswith('leave ') or message.startswith('invite '):
+            try:
+                command, group_number_str = message.split()
+                group_number = int(group_number_str)
+                if group_number < 0:
+                    raise ValueError
+                return self._create_command(friend_number, command, group_number)
+            except ValueError:
+                return
 
         return None  # command was not found
 

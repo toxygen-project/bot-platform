@@ -75,7 +75,7 @@ def tox_file_recv(file_transfer_handler):
             file_transfer_handler.process_incoming_transfer(friend_number, file_number, file_name, file_size)
         else:  # AVATAR
             print('Incoming avatar')
-            file_transfer_handler.cancel_transfer(friend_number, file_number)
+            file_transfer_handler.process_incoming_avatar(friend_number, file_number, file_name, file_size)
 
     return wrapped
 
@@ -156,7 +156,7 @@ def group_private_message(interpreter):
 
 def conference_invite(bot):
     def wrapped(tox, friend_number, invite_data, length, user_data):
-        bot.process_conference_invite_request(friend_number, bytes(invite_data[:length]))
+        bot.process_gc_invite_request(friend_number, bytes(invite_data[:length]))
 
     return wrapped
 

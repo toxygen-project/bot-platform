@@ -46,6 +46,9 @@ class FileTransfersHandler(ToxSave):
         else:
             self.cancel_transfer(friend_number, file_number)
 
+    def process_incoming_avatar(self, friend_number, file_number, file_name, file_size):
+        self.cancel_transfer(friend_number, file_number)
+
     def accept_transfer(self, friend_number, file_number, file_path, file_size):
         rt = ReceiveTransfer(file_path, self._tox, friend_number, file_size, file_number)
         self._file_transfers[(friend_number, file_number)] = rt
