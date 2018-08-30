@@ -16,7 +16,7 @@ class Node:
     priority = property(get_priority)
 
     def get_data(self):
-        return bytes(self._ip, 'utf-8'), self._port, self._tox_key
+        return self._ip, self._port, self._tox_key
 
 
 def generate_nodes():
@@ -28,14 +28,6 @@ def generate_nodes():
         yield node.get_data()
 
 
-def save_nodes(nodes):
-    if not nodes:
-        return
-    print('Saving nodes...')
-    with open(get_abs_file_path('nodes.json', __file__), 'wb') as fl:
-        fl.write(nodes)
-
-
 def download_nodes_list():
     try:
         url = 'https://nodes.tox.chat/json'
@@ -43,6 +35,14 @@ def download_nodes_list():
         req.add_header('Content-Type', 'application/json')
         response = urllib.request.urlopen(req)
         result = response.read()
-        save_nodes(result)
+        _save_nodes(result)
     except Exception as ex:
         log('Tox nodes loading error: ' + str(ex))
+
+
+def _save_nodes(nodes):
+    if not nodes:
+        return
+    print('Saving nodes...')
+    with open(get_abs_file_path('nodes.json', __file__), 'wb') as fl:
+        fl.write(nodes)
