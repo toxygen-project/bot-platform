@@ -6,6 +6,10 @@ class NewGroupService(BaseGroupService):
     def __init__(self, tox):
         super().__init__(tox)
 
+    # -----------------------------------------------------------------------------------------------------------------
+    # Public methods
+    # -----------------------------------------------------------------------------------------------------------------
+
     def accept_invite(self, friend_number, invite_data):
         nick = self._tox.self_get_name()
         status = self._tox.self_get_status()
@@ -25,7 +29,22 @@ class NewGroupService(BaseGroupService):
         group_number = self._get_group_number(group_order_number)
         self._tox.group_leave(group_number)
 
+    def send_message(self, message, message_type, group_order_number):
+        if group_order_number is None:
+            group_numbers = self._get_groups_list()
+        else:
+            group_numbers = [self._get_group_number(group_order_number)]
+        for group_number in group_numbers:
+            self._tox.group_send_message(group_number, message_type, message)
+
+    # -----------------------------------------------------------------------------------------------------------------
+    # Public methods
+    # -----------------------------------------------------------------------------------------------------------------
+
     def _get_group_number(self, group_order_number):
-        group_numbers = self._tox.groups_get_list()
+        group_numbers = self._get_groups_list()
 
         return group_numbers[group_order_number - 1]
+
+    def _get_groups_list(self):
+        return  self._tox.groups_get_list()

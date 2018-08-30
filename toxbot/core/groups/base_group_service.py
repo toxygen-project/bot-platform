@@ -17,3 +17,6 @@ class BaseGroupService(tox_save.ToxSave):
 
     def leave_group(self, group_order_number):
         pass
+
+    def send_message(self, message, message_type, group_order_number):
+        pass

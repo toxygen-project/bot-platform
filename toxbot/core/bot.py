@@ -71,7 +71,7 @@ class Bot(ToxSave):
         for tox_message in messages:
             self._tox.friend_send_message(friend_number, message_type, tox_message)
 
-    def send_message_to_group(self, group_number, message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
+    def send_message_to_group(self, message, message_type=TOX_MESSAGE_TYPE['NORMAL'], group_number=None):
         """
         :param group_number: group number
         :param message_type: type of message
@@ -79,7 +79,7 @@ class Bot(ToxSave):
         """
         messages = self._split_message(message)
         for tox_message in messages:
-            self._tox.group_send_message(group_number, message_type, tox_message)
+            self._group_service.send_message(tox_message, message_type, group_number)
 
     def send_private_message_to_gc_peer(self, group_number, peer_number,
                                         message, message_type=TOX_MESSAGE_TYPE['NORMAL']):
@@ -167,12 +167,7 @@ class Bot(ToxSave):
 
     @authorize
     def send_group_message(self, friend_number, message, destination_group=None):
-        if destination_group is not None:
-            groups_list = [destination_group]
-        else:
-            groups_list = self._get_groups_list()
-        for group in groups_list:
-            self.send_message_to_group(group, message)
+        self.send_message_to_group(group, message)
 
     @authorize
     def stop(self, friend_number):
@@ -321,5 +316,3 @@ class Bot(ToxSave):
     def _get_friends_list(self):
         return self._tox.self_get_friend_list()
 
-    def _get_groups_list(self):
-        return range(self._tox.group_get_number_groups())

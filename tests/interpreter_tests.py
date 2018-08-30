@@ -3,11 +3,14 @@ from toxbot.core.factories import interpreter_default_factory
 from tests.common import FRIEND_NUMBER
 
 
+# TODO: test all commands
+
 class FakeBot:
 
     def __init__(self):
         self.set_status_called = 0
         self.set_name_called = 0
+        self.get_id_called = 0
 
     def set_status(self, _, friend_number, status):
         assert friend_number == FRIEND_NUMBER
@@ -18,6 +21,10 @@ class FakeBot:
         assert friend_number == FRIEND_NUMBER
         assert name
         self.set_name_called += 1
+
+    def get_id(self, _, friend_number):
+        assert friend_number == FRIEND_NUMBER
+        self.get_id_called += 1
 
 
 class TestInterpreter:
@@ -33,6 +40,10 @@ class TestInterpreter:
         for name_command in ('name', 'name 123', ' name '):
             interpreter.interpret(name_command, FRIEND_NUMBER)
         assert bot.set_name_called == 1
+
+        for id_command in ('id', 'id,', '  id', '\tid'):
+            interpreter.interpret(id_command, FRIEND_NUMBER)
+        assert bot.get_id_called == 3
 
     @staticmethod
     def _create_bot():
