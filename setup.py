@@ -3,7 +3,10 @@ import toxbot.app as app
 
 
 version = app.__version__ + '.0'
+maintainer = app.__maintainer__
 
+
+# TODO: find all packages
 
 setup(name='ToxBotPlatform',
       version=version,
@@ -11,12 +14,13 @@ setup(name='ToxBotPlatform',
       long_description='Tox bot platform provides easy way to create bots for Tox messenger',
       url='https://github.com/toxygen-project/bot-platform',
       keywords='tox messenger bot platform',
-      author='Ingvar',
-      maintainer='Ingvar',
+      author=maintainer,
+      maintainer=maintainer,
       license='GPL3',
       packages=[
           'toxbot', 'toxbot.core', 'toxbot.wrapper', 'toxbot.middleware', 'toxbot.core.bootstrap',
-          'toxbot.core.bot_data', 'toxbot.core.commands', 'toxbot.core.file_transfers', 'toxbot.core.common'
+          'toxbot.core.bot_data', 'toxbot.core.commands', 'toxbot.core.file_transfers', 'toxbot.core.common',
+          'toxbot.core.groups'
       ],
       include_package_data=True,
       package_data={'toxbot.core.bootstrap': ['nodes.json']},

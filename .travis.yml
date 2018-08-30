@@ -2,33 +2,13 @@ language: python
 python:
   - "3.5"
   - "3.6"
+  - "3.7"
 os:
   - linux
 dist: trusty
 notifications:
   email: false
-before_install:
-  - sudo apt-get update
-  - sudo apt-get install -y checkinstall build-essential
-before_script:
-# Libsodium
-  - git clone git://github.com/jedisct1/libsodium.git
-  - cd libsodium
-  - git checkout tags/1.0.3
-  - ./autogen.sh
-  - ./configure && make -j$(nproc)
-  - sudo checkinstall --install --pkgname libsodium --pkgversion 1.0.0 --nodoc -y
-  - sudo ldconfig
-  - cd ..
-# Toxcore
-  - git clone https://github.com/irungentoo/toxcore.git
-  - cd toxcore
-  - autoreconf -if
-  - ./configure
-  - make -j$(nproc)
-  - sudo make install
-  - echo '/usr/local/lib/' | sudo tee -a /etc/ld.so.conf.d/locallib.conf
-  - sudo ldconfig
-  - cd ..
 script:
-  - py.test tests/tests.py
+  - py.test tests/travis.py
+  - py.test tests/interpreter_tests.py
+  - py.test tests/bot_tests.py
