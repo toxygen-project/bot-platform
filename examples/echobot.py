@@ -24,7 +24,7 @@ def main():
     # creates app instance
     app = ToxBotApplication('echobot.tox')
     # overrides default app parameters
-    params = ToxBotAppParameters(interpreter_factory=lambda bot: EchobotInterpreter(bot))
+    params = ToxBotAppParameters(interpreter_factory=lambda bot, cl: EchobotInterpreter(bot, cl))
     # starts app
     app.main(params)
 

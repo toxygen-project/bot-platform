@@ -1,5 +1,4 @@
 
-
 class CommandData:
 
     def __init__(self, method_name, allowed_roles, description=''):
@@ -25,36 +24,45 @@ class CommandData:
 
 # TODO: more commands
 
-_commands = {
-    'name': CommandData('set_name', ['admin'], 'Sets my name'),
-    'status': CommandData('set_status', ['admin'], 'Sets my status'),
-    'status_message': CommandData('set_status_message', ['admin'], 'Sets my status message'),
-    'id': CommandData('get_id', ['user', 'admin'], 'Gets my TOX ID'),
-    'info': CommandData('get_info', ['user', 'admin'], 'Prints my current status'),
-    'help': CommandData('print_help', ['user', 'admin'], 'Prints commands list'),
-    'message': CommandData('send_message', ['admin'], 'Sends message'),
-    'stop': CommandData('stop', ['admin'], 'Stops bot'),
-    'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
-    'ban pk': CommandData('ban_public_key', ['admin'], 'Ban user by public key'),
-    'roles': CommandData('send_roles', ['user', 'admin'], 'Prints your roles'),
-    'reconnect': CommandData('reconnect', ['admin'], 'Asks bot to reconnect'),
-    'auto_reconnection': CommandData('set_auto_reconnection_interval', ['admin'],
-                                     'Sets automatic reconnection interval in seconds (0 to disable)'),
-    'groups': CommandData('send_groups_list', ['user', 'admin'], 'Prints groups list'),
-    'leave': CommandData('leave_group', ['admin'], 'Leave group'),
-    'invite': CommandData('invite_to_group', ['user', 'admin'], 'Invites to group')
-}
+class CommandsList:
 
+    def __init__(self):
 
-def get_commands_descriptions():
-    s = ''
-    for key in _commands:
-        s += '{}: {}\n'.format(key, _commands[key].description)
-    return s
+        self._commands = {
+            'name': CommandData('set_name', ['admin'], 'Sets my name'),
+            'status': CommandData('set_status', ['admin'], 'Sets my status'),
+            'status_message': CommandData('set_status_message', ['admin'], 'Sets my status message'),
+            'id': CommandData('get_id', ['user', 'admin'], 'Gets my TOX ID'),
+            'info': CommandData('get_info', ['user', 'admin'], 'Prints my current status'),
+            'help': CommandData('print_help', ['user', 'admin'], 'Prints commands list'),
+            'message': CommandData('send_message', ['admin'], 'Sends message'),
+            'stop': CommandData('stop', ['admin'], 'Stops bot'),
+            'ban nick': CommandData('ban_nick', ['admin'], 'Ban user by nick'),
+            'ban pk': CommandData('ban_public_key', ['admin'], 'Ban user by public key'),
+            'roles': CommandData('send_roles', ['user', 'admin'], 'Prints your roles'),
+            'reconnect': CommandData('reconnect', ['admin'], 'Asks bot to reconnect'),
+            'auto_reconnection': CommandData('set_auto_reconnection_interval', ['admin'],
+                                             'Sets automatic reconnection interval in seconds (0 to disable)'),
+            'groups': CommandData('send_groups_list', ['user', 'admin'], 'Prints groups list'),
+            'leave': CommandData('leave_group', ['admin'], 'Leave group'),
+            'invite': CommandData('invite_to_group', ['user', 'admin'], 'Invites to group'),
+            'save': CommandData('save', ['admin'], 'Saves all bot data')
+        }
 
+    def extend(self, new_commands):
+        self._commands.update(new_commands)
 
-def extend_command_list(new_commands):
-    _commands.update(new_commands)
+    def remove(self, commands):
+        for command in commands:
+            del self._commands[command]
+
+    def get_commands_descriptions(self):
+        return '\n'.join(map(lambda k, v: '{}: {}\n'.format(k, v.description), self._commands.items()))
+
+    def get_commands(self):
+        return self._commands
+
+    commands = property(get_commands)
 
 
 class BaseCommand:
@@ -75,15 +83,16 @@ class ExecutableCommand(BaseCommand):
 
 class BaseDefaultCommand(BaseCommand):
 
-    def __init__(self, bot, command, *arguments):
+    def __init__(self, bot, commands_list, command, *arguments):
         super().__init__()
         self._bot = bot
+        self._commands_list = commands_list
         self._command = command
         self._arguments = arguments
 
     def execute(self):
-        if self._command in _commands:
-            command_data = _commands[self._command]
+        if self._command in self._commands_list.commands:
+            command_data = self._commands_list.commands[self._command]
             method = getattr(self._bot, command_data.method_name)
             self.run_method(method, command_data.roles)
         else:
@@ -98,8 +107,8 @@ class BaseDefaultCommand(BaseCommand):
 
 class Command(BaseDefaultCommand):
 
-    def __init__(self, bot, friend_number, command, *arguments):
-        super().__init__(bot, command, *arguments)
+    def __init__(self, bot, commands_list, friend_number, command, *arguments):
+        super().__init__(bot, commands_list, command, *arguments)
         self._friend_number = friend_number
 
     def invalid_command(self):
@@ -112,8 +121,8 @@ class Command(BaseDefaultCommand):
 
 class GcCommand(BaseDefaultCommand):
 
-    def __init__(self, bot, gc_number, peer_number, command, *arguments):
-        super().__init__(bot, command, *arguments)
+    def __init__(self, bot, commands_list, gc_number, peer_number, command, *arguments):
+        super().__init__(bot, commands_list, command, *arguments)
         self._gc_number = gc_number
         self._peer_number = peer_number
 

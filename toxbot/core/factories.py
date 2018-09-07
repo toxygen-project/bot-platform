@@ -3,8 +3,8 @@ from core.bot import *
 from core.file_transfers.file_transfers_handler import *
 
 
-def interpreter_default_factory(bot):
-    return Interpreter(bot)
+def interpreter_default_factory(bot, commands_list):
+    return Interpreter(bot, commands_list)
 
 
 def bot_default_factory(tox, settings, profile_manager, permission_checker, file_transfer_handler,

@@ -6,8 +6,9 @@ from wrapper.toxcore_enums_and_consts import *
 
 class Interpreter:
 
-    def __init__(self, bot):
+    def __init__(self, bot, commands_list):
         self._bot = bot
+        self._commands_list = commands_list
 
     # -----------------------------------------------------------------------------------------------------------------
     # Interpretation
@@ -53,7 +54,7 @@ class Interpreter:
 
     def _parse_command(self, message, friend_number):
         if message == 'help':
-            return HelpCommand(self._bot, friend_number)
+            return HelpCommand(self._bot, self._commands_list, friend_number)
         elif message.startswith('name '):
             new_name = message[len('name '):]
             return self._create_command(friend_number, 'name', new_name)
@@ -69,7 +70,7 @@ class Interpreter:
         elif message.startswith('status_message '):
             new_status_message = message[len('status_message '):]
             return self._create_command(friend_number, 'status_message', new_status_message)
-        elif message in ('id', 'info', 'reconnect', 'roles', 'stop', 'groups'):
+        elif message in ('id', 'info', 'reconnect', 'roles', 'stop', 'groups', 'save'):
             return self._create_command(friend_number, message)
         elif message.startswith('auto_reconnection '):
             reconnection_interval = message[len('auto_reconnection '):]
@@ -110,7 +111,7 @@ class Interpreter:
     # -----------------------------------------------------------------------------------------------------------------
 
     def _create_command(self, friend_number, name, *arguments):
-        return Command(self._bot, friend_number, name, *arguments)
+        return Command(self._bot, self._commands_list, friend_number, name, *arguments)
 
     @staticmethod
     def _execute_command(command):

@@ -81,14 +81,16 @@ class ToxBotApplication:
         self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,
                                                  self._permission_checker, self._file_transfer_handler,
                                                  self._group_service, self._stop, self._reconnect)
-        self._interpreter = self._parameters.interpreter_factory(self._bot)
+        commands_list = CommandsList()
+        self._interpreter = self._parameters.interpreter_factory(self._bot, commands_list)
 
     def _init_callbacks(self):
         init_callbacks(self._bot, self._tox, self._interpreter, self._file_transfer_handler,
                        self._parameters.should_use_old_gc)
         if self._parameters.callbacks_initializer is not None:
             self._parameters.callbacks_initializer(self._bot, self._tox, self._interpreter,
-                                                   self._file_transfer_handler, self._parameters.should_use_old_gc)
+                                                   self._file_transfer_handler, self._group_service,
+                                                   self._parameters.should_use_old_gc)
 
     def _bootstrap(self):
         if self._settings['download_nodes']:

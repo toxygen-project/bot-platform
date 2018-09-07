@@ -40,7 +40,7 @@ class Bot(ToxSave):
             return
         friends_count = self._tox.self_get_friend_list_size()
         self._tox.friend_add_norequest(public_key)
-        self._profile_manager.save_profile()
+        self._save_profile()
         if friends_count:
             rights = self._settings['auto_rights']
         else:
@@ -54,7 +54,7 @@ class Bot(ToxSave):
             return
 
         self._group_service.accept_invite(friend_number, invite_data)
-        self._profile_manager.save_profile()
+        self._save_profile()
 
     def update_connection_status(self, connection_status):
         if connection_status == TOX_CONNECTION['NONE'] and not self._waiting_for_reconnection:
@@ -138,6 +138,12 @@ class Bot(ToxSave):
         self._tox.self_set_status_message(status_message)
 
     @authorize
+    def save(self, friend_number):
+        log('Saving all info: ' + str(friend_number))
+        self._save_profile()
+        self._save_settings()
+
+    @authorize
     def get_id(self, friend_number):
         tox_id = self._get_tox_id()
         self.send_message_to_friend(friend_number, tox_id)
@@ -167,7 +173,7 @@ class Bot(ToxSave):
 
     @authorize
     def send_group_message(self, friend_number, message, destination_group=None):
-        self.send_message_to_group(group, message)
+        self.send_message_to_group(destination_group, message)
 
     @authorize
     def stop(self, friend_number):
@@ -188,7 +194,7 @@ class Bot(ToxSave):
     def set_auto_reconnection_interval(self, friend_number, interval):
         log('Auto reconnection interval was set to {} by friend {}'.format(interval, friend_number))
         self._settings['automatic_reconnection_interval'] = interval
-        self._settings.save()
+        self._save_settings()
         self.send_message_to_friend(friend_number, 'Successfully updated!')
 
     @authorize
@@ -205,7 +211,7 @@ class Bot(ToxSave):
         log('Nick "{}" was banned by friend number {}'.format(nick, friend_number))
         if nick not in self._settings['ban']['nicks']:
             self._settings['ban']['nicks'].append(nick)
-            self._settings.save()
+            self._save_settings()
         self.send_message_to_friend(friend_number, 'Successfully banned nickname ' + nick)
 
     @authorize
@@ -316,3 +322,8 @@ class Bot(ToxSave):
     def _get_friends_list(self):
         return self._tox.self_get_friend_list()
 
+    def _save_profile(self):
+        self._profile_manager.save_profile()
+        
+    def _save_settings(self):
+        self._settings.save()
