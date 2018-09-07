@@ -1,5 +1,5 @@
 from core.file_transfers.file_transfers import *
-from core.util import get_avatar_path, get_settings_path
+from core.util import get_avatar_path, get_settings_path, file_exists
 from wrapper.toxcore_enums_and_consts import *
 from core.file_transfers.file_transfer_thread import start, stop
 from core.common.tox_save import ToxSave
@@ -27,6 +27,8 @@ class FileTransfersHandler(ToxSave):
 
     def send_avatar(self, friend_number):
         avatar_path = get_avatar_path()
+        if not file_exists(avatar_path):
+            return
         sa = SendAvatar(avatar_path, self._tox, friend_number)
         self._file_transfers[(friend_number, sa.get_file_number())] = sa
 

@@ -46,6 +46,10 @@ def join_path(a, b):
     return os.path.join(a, b)
 
 
+def file_exists(file_path):
+    return os.path.exists(file_path)
+
+
 def time_from_seconds(seconds):
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
