@@ -56,8 +56,15 @@ class CommandsList:
         for command in commands:
             del self._commands[command]
 
-    def get_commands_descriptions(self):
-        return '\n'.join(map(lambda k, v: '{}: {}\n'.format(k, v.description), self._commands.items()))
+    def get_commands_descriptions(self, roles):
+        s = ''
+        for key in self._commands:
+            value = self._commands[key]
+            intersect = set(value.roles).intersection(roles)
+            if intersect:
+                s += '{}: {}\n'.format(key, value.description)
+
+        return s
 
     def get_commands(self):
         return self._commands

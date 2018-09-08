@@ -155,14 +155,14 @@ def group_private_message(interpreter):
 
 
 def conference_invite(bot):
-    def wrapped(tox, friend_number, invite_data, length, user_data):
+    def wrapped(tox, friend_number, conference_type, invite_data, length, user_data):
         bot.process_gc_invite_request(friend_number, bytes(invite_data[:length]))
 
     return wrapped
 
 
 def conference_message(interpreter):
-    def wrapped(tox, group_number, peer_number, message, length, user_data):
+    def wrapped(tox, group_number, peer_number, message_type, message, length, user_data):
         interpreter.interpret_gc_message(message[:length], group_number, peer_number)
 
     return wrapped

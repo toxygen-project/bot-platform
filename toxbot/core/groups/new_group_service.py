@@ -47,6 +47,12 @@ class NewGroupService(BaseGroupService):
 
         return group_numbers.index(group_number)
 
+    def get_group_peers_count(self, group_order_number):
+        return 0  # TODO: implement
+
+    def get_groups_count(self):
+        return self._tox.group_get_number_groups()
+
     # -----------------------------------------------------------------------------------------------------------------
     # Private methods
     # -----------------------------------------------------------------------------------------------------------------

@@ -26,3 +26,9 @@ class BaseGroupService(tox_save.ToxSave):
 
     def get_group_order_number(self, group_number):
         pass
+
+    def get_group_peers_count(self, group_order_number):
+        pass
+
+    def get_groups_count(self):
+        pass

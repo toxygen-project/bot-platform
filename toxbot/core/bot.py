@@ -234,7 +234,9 @@ class Bot(ToxSave):
 
         message = ''
         for i, group_name in enumerate(group_names):
-            message += '{}. {}\n'.format(str(i + 1), group_name)
+            group_order_number = i + 1
+            peers_count = self._group_service.get_group_peers_count(group_order_number)
+            message += '{}. {} ({} peers)\n'.format(str(group_order_number), group_name, str(peers_count))
 
         self.send_message_to_friend(friend_number, message or 'No groups found')
 
@@ -246,7 +248,10 @@ class Bot(ToxSave):
     def invite_to_group(self, friend_number, group_order_number):
         self._group_service.invite_friend(friend_number, group_order_number)
 
-    def print_help(self, friend_number, help_message):
+    def print_help(self, friend_number, commands_list):
+        roles = self._permission_checker.get_user_roles(friend_number)
+        help_message = commands_list.get_commands_descriptions(roles)
+
         self.send_message_to_friend(friend_number, help_message)
 
     # -----------------------------------------------------------------------------------------------------------------

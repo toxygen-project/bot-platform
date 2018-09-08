@@ -49,6 +49,14 @@ class OldGroupService(BaseGroupService):
     def get_group_order_number(self, group_number):
         return self._groups.index(group_number)
 
+    def get_group_peers_count(self, group_order_number):
+        group_number = self.get_group_number(group_order_number)
+
+        return self._tox.conference_peer_count(group_number)
+
+    def get_groups_count(self):
+        return len(self._groups)
+
     # -----------------------------------------------------------------------------------------------------------------
     # Private methods
     # -----------------------------------------------------------------------------------------------------------------
