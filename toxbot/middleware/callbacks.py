@@ -133,7 +133,8 @@ def group_message(interpreter):
     New message in group chat
     """
     def wrapped(tox_link, group_number, peer_id, message_type, message, length, user_data):
-        interpreter.interpret_gc_message(message[:length], group_number, peer_id)
+        message = str(message[:length])
+        interpreter.interpret_gc_message(message, group_number, peer_id)
 
     return wrapped
 
@@ -144,7 +145,8 @@ def group_private_message(interpreter):
     """
 
     def wrapped(tox_link, group_number, peer_id, message_type, message, length, user_data):
-        interpreter.interpret_gc_private_message(message[:length], group_number, peer_id)
+        message = str(message[:length], 'utf-8')
+        interpreter.interpret_gc_private_message(message, group_number, peer_id)
 
     return wrapped
 
@@ -163,7 +165,8 @@ def conference_invite(bot):
 
 def conference_message(interpreter):
     def wrapped(tox, group_number, peer_number, message_type, message, length, user_data):
-        interpreter.interpret_gc_message(message[:length], group_number, peer_number)
+        message = str(message[:length], 'utf-8')
+        interpreter.interpret_gc_message(message, group_number, peer_number)
 
     return wrapped
 

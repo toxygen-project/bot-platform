@@ -49,10 +49,10 @@ class ToxBotApplication:
     def _save_profile(self):
         self._profile_manager.save_profile()
 
-    def _stop(self):
+    def _stop_action(self):
         self._stop = True
 
-    def _reconnect(self):
+    def _reconnect_action(self):
         self._profile_manager.save_profile()
         profile_data = self._profile_manager.load_profile()
         self._tox = tox_factory(profile_data, self._settings)
@@ -80,7 +80,8 @@ class ToxBotApplication:
                                                                                      self._permission_checker)
         self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,
                                                  self._permission_checker, self._file_transfer_handler,
-                                                 self._group_service, self._stop, self._reconnect)
+                                                 self._group_service, self._stop_action,
+                                                 self._reconnect_action)
         commands_list = CommandsList()
         self._interpreter = self._parameters.interpreter_factory(self._bot, commands_list)
 

@@ -46,7 +46,8 @@ class CommandsList:
             'groups': CommandData('send_groups_list', ['user', 'admin'], 'Prints groups list'),
             'leave': CommandData('leave_group', ['admin'], 'Leave group'),
             'invite': CommandData('invite_to_group', ['user', 'admin'], 'Invites to group'),
-            'save': CommandData('save', ['admin'], 'Saves all bot data')
+            'save': CommandData('save', ['admin'], 'Saves all bot data'),
+            'group_message': CommandData('send_group_message', ['admin'], 'Sends message to group')
         }
 
     def extend(self, new_commands):

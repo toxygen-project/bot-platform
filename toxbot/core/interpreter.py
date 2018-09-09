@@ -36,17 +36,17 @@ class Interpreter:
     def _get_command(self, message, friend_number):
         command = self._parse_command(message, friend_number)
 
-        return command or InvalidCommand(self._bot, friend_number)
+        return command or InvalidCommand(self._bot, self._commands_list, friend_number)
 
     def _get_gc_command(self, message, gc_number, peer_id):
-        command = self._parse_gc_command(message,gc_number, peer_id)
+        command = self._parse_gc_command(message, gc_number, peer_id)
 
-        return command or InvalidGcCommand(self._bot, gc_number, peer_id)
+        return command or InvalidGcCommand(self._bot, self._commands_list, gc_number, peer_id)
 
     def _get_gc_private_command(self, message, gc_number, peer_id):
         command = self._parse_gc_private_command(message, gc_number, peer_id)
 
-        return command or InvalidGcPrivateCommand(self._bot, gc_number, peer_id)
+        return command or InvalidGcPrivateCommand(self._bot, self._commands_list, gc_number, peer_id)
 
     # -----------------------------------------------------------------------------------------------------------------
     # Parsing
@@ -81,6 +81,9 @@ class Interpreter:
                 return self._create_command(friend_number, 'auto_reconnection', reconnection_interval)
             except ValueError:
                 return
+        elif message.startswith('group_message '):
+            group_number, group_message = message[len('group_message '):].split()
+            return self._create_command(friend_number, 'group_message', group_message, int(group_number))
         elif message.startswith('ban pk '):
             public_key = message[len('ban pk '):]
             if len(public_key) == TOX_PUBLIC_KEY_SIZE * 2:

@@ -1,5 +1,6 @@
 from toxbot.wrapper.toxcore_enums_and_consts import TOX_USER_STATUS
 from toxbot.core.factories import interpreter_default_factory
+from toxbot.core.commands.command import CommandsList
 from tests.common import FRIEND_NUMBER
 
 
@@ -31,7 +32,8 @@ class TestInterpreter:
 
     def test_commands(self):
         bot = self._create_bot()
-        interpreter = interpreter_default_factory(bot)
+        commands_list = CommandsList()
+        interpreter = interpreter_default_factory(bot, commands_list)
 
         for status_command in ('status 123', 'status -1', ' status 2', 'status 0    '):
             interpreter.interpret(status_command, FRIEND_NUMBER)

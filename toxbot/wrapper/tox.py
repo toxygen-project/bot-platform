@@ -2518,11 +2518,17 @@ class Tox:
         result = Tox.libtoxcore.tox_conference_delete(self._tox_pointer, c_int(conference_number), None)
         return result
 
+    def conference_peer_get_name_size(self, conference_number, peer_number):
+        result = Tox.libtoxcore.tox_conference_peer_get_name_size(self._tox_pointer, c_int(conference_number),
+                                                                  c_int(peer_number), None)
+        return result
+
     def conference_peer_get_name(self, conference_number, peer_number):
-        buffer = create_string_buffer(TOX_MAX_NAME_LENGTH)
+        size = self.conference_peer_get_name_size(conference_number, peer_number)
+        buffer = create_string_buffer(size)
         result = Tox.libtoxcore.tox_conference_peer_get_name(self._tox_pointer, c_int(conference_number),
                                                              c_int(peer_number), buffer, None)
-        return str(buffer[:result], 'utf-8')
+        return str(buffer[:size], 'utf-8')
 
     def conference_invite(self, friend_number, conference_number):
         result = Tox.libtoxcore.tox_conference_invite(self._tox_pointer, c_int(friend_number),
@@ -2540,16 +2546,21 @@ class Tox:
                                                             c_uint16(len(message)), None)
         return result
 
+    def conference_get_title_size(self, conference_number):
+        result = Tox.libtoxcore.tox_conference_get_title_size(self._tox_pointer,
+                                                              c_int(conference_number), None)
+        return result
+
     def conference_get_title(self, conference_number):
-        buffer = create_string_buffer(TOX_MAX_NAME_LENGTH)
-        result = Tox.libtoxcore.tox_conference_set_title(self._tox_pointer,
-                                                         int(conference_number), buffer,
-                                                         c_uint32(TOX_MAX_NAME_LENGTH), None)
-        return str(buffer[:result], 'utf-8')
+        size = self.conference_get_title_size(conference_number)
+        buffer = create_string_buffer(size)
+        result = Tox.libtoxcore.tox_conference_get_title(self._tox_pointer, int(conference_number),
+                                                         buffer, None)
+        return str(buffer[:size], 'utf-8')
 
     def conference_set_title(self, conference_number, title):
         title = title.encode('utf-8')
-        result = Tox.libtoxcore.tox_conference_get_title(self._tox_pointer, c_int(conference_number),
+        result = Tox.libtoxcore.tox_conference_set_title(self._tox_pointer, c_int(conference_number),
                                                          c_char_p(title), c_uint8(len(title)), None)
         return result
 
@@ -2567,7 +2578,7 @@ class Tox:
         Tox.libtoxcore.tox_callback_conference_invite(self._tox_pointer, self.conference_invite_cb)
 
     def callback_conference_message(self, callback):
-        c_callback = CFUNCTYPE(None, c_void_p, c_int, c_int, c_char_p, c_uint16, c_void_p)
+        c_callback = CFUNCTYPE(None, c_void_p, c_int, c_int, c_int, c_char_p, c_uint16, c_void_p)
         self.conference_message_cb = c_callback(callback)
         Tox.libtoxcore.tox_callback_conference_message(self._tox_pointer, self.conference_message_cb)
 

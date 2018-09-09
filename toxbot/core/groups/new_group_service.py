@@ -45,7 +45,7 @@ class NewGroupService(BaseGroupService):
     def get_group_order_number(self, group_number):
         group_numbers = self._get_groups_list()
 
-        return group_numbers.index(group_number)
+        return group_numbers.index(group_number) + 1
 
     def get_group_peers_count(self, group_order_number):
         return 0  # TODO: implement

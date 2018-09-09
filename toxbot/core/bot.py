@@ -173,7 +173,7 @@ class Bot(ToxSave):
 
     @authorize
     def send_group_message(self, friend_number, message, destination_group=None):
-        self.send_message_to_group(destination_group, message)
+        self.send_message_to_group(message, group_number=destination_group)
 
     @authorize
     def stop(self, friend_number):
