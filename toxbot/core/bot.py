@@ -315,7 +315,7 @@ class Bot(ToxSave):
     def _cleanup_friends_list(self):
         current_time = get_time()
         period = self._settings['maximum_friend_inactivity_period']
-        friend_last_time_online_min_time = current_time - period * 26 * 60 * 60
+        friend_last_time_online_min_time = current_time - period * 24 * 60 * 60
         for friend_number in self._get_friends_list():
             last_time_online = self._tox.friend_get_last_online()
             if last_time_online < friend_last_time_online_min_time:

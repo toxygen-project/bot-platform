@@ -1,16 +1,14 @@
 from core.bootstrap.bootstrap import generate_nodes, download_nodes_list
 from middleware.callbacks import init_callbacks
-import sys
 from time import sleep
 from core.bot_data.profile_manager import ProfileManager
 from middleware.tox_factory import *
 from core.bot_data.settings import Settings
-import core.util as util
 from app_parameters import *
-from core.groups.new_group_service import NewGroupService
-from core.groups.old_group_service import OldGroupService
+import core.util as util
+import sys
 
-__version__ = '0.2'
+__version__ = '0.3'
 __maintainer__ = 'Ingvar'
 
 
@@ -74,8 +72,7 @@ class ToxBotApplication:
         self._profile_manager.set_tox(self._tox)
         self._permission_checker = PermissionChecker(self._settings, self._tox)
 
-        group_service_class = OldGroupService if self._parameters.should_use_old_gc else NewGroupService
-        self._group_service = group_service_class(self._tox)
+        self._group_service = self._parameters.group_service_factory(self._tox, self._parameters.should_use_old_gc)
         self._file_transfer_handler = self._parameters.file_transfer_handler_factory(self._tox,
                                                                                      self._permission_checker)
         self._bot = self._parameters.bot_factory(self._tox, self._settings, self._profile_manager,

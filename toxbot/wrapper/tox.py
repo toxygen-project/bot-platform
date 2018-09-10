@@ -2570,7 +2570,7 @@ class Tox:
 
     def conference_new(self):
         result = self.libtoxcore.tox_conference_new(self._tox_pointer, None)
-        return result
+        return int(result)
 
     def callback_conference_invite(self, callback):
         c_callback = CFUNCTYPE(None, c_void_p, c_uint32, c_uint8, POINTER(c_uint8), c_uint16, c_void_p)

@@ -16,7 +16,14 @@ class OldGroupService(BaseGroupService):
         self._add_group(group_number)
 
     def get_groups_names(self):
-        group_names = map(lambda n: self._tox.conference_get_title(n), self._groups)
+
+        def get_name(group_number):
+            try:
+                return self._tox.conference_get_title(group_number)
+            except:
+                return '<Empty name>'
+
+        group_names = map(get_name, self._groups)
 
         return list(group_names)
 
