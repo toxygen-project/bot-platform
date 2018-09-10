@@ -263,14 +263,14 @@ class Bot(ToxSave):
         message = message.encode('utf-8')
         messages = []
         while len(message) > TOX_MAX_MESSAGE_LENGTH:
-            size = TOX_MAX_MESSAGE_LENGTH * 4 / 5
+            size = TOX_MAX_MESSAGE_LENGTH * 4 // 5
             last_part = message[size:TOX_MAX_MESSAGE_LENGTH]
-            if ' ' in last_part:
-                index = last_part.index(' ')
-            elif ',' in last_part:
-                index = last_part.index(',')
-            elif '.' in last_part:
-                index = last_part.index('.')
+            if b' ' in last_part:
+                index = last_part.index(b' ')
+            elif b',' in last_part:
+                index = last_part.index(b',')
+            elif b'.' in last_part:
+                index = last_part.index(b'.')
             else:
                 index = TOX_MAX_MESSAGE_LENGTH - size - 1
             index += size + 1
